@@ -132,3 +132,30 @@ allowing the core framework to remain platform independent.
 * Manufacturing Test Stations
 * Hardware Validation Labs
 
+## Build
+
+### Prerequisites
+
+The following tools are required:
+
+- CMake 3.16 or later
+- GCC or Clang compiler
+- Linux development environment
+
+### Clone Repository
+
+```bash
+git clone https://github.com/<your-org>/hardware-test-framework.git
+cd hardware-test-framework
+```
+
+### Configure Build
+
+Create an out-of-tree build directory and generate build files:
+
+```bash
+mkdir build
+cd build
+
+cmake ..
+```
