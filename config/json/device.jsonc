@@ -1,0 +1,60 @@
+{
+    "schema_version": 1,
+
+    "devices": [
+        {
+            "id": "led0",
+            "name": "status_led",
+            "type": "led",
+            "description": "Status LED on the device"
+        },
+        {
+            "id": "btn0",
+            "name": "user_button",
+            "type": "button",
+            "description": "User button on the device"
+        },
+        {
+            "id": "temp0",
+            "name": "ambient_temperature",
+            "type": "temperature_sensor",
+            "description": "Ambient temperature measurement"
+        },
+        {
+            "id": "accel0",
+            "name": "motion_sensor",
+            "type": "accelerometer",
+            "description": "Motion and acceleration sensor"
+        },
+        {
+            "id": "storage0",
+            "name": "configuration_storage",
+            "type": "storage",
+            "description": "Persistent configuration storage"
+        },
+        {
+            "id": "cam0",
+            "name": "main_camera",
+            "type": "camera",
+            "description": "Primary image sensor"
+        },
+        {
+            "id": "net0",
+            "name": "wireless_network",
+            "type": "network_interface",
+            "description": "Wireless network interface"
+        },
+        {
+            "id": "power0",
+            "name": "primary_power",
+            "type": "power_source",
+            "description": "Main power source"
+        },
+        {
+            "id": "console0",
+            "name": "debug_console",
+            "type": "console",
+            "description": "Debug and maintenance console"
+        }
+    ]
+}

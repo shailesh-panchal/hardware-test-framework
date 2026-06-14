@@ -1,0 +1,59 @@
+{
+    "schema_version": 1,
+    "functions": [
+        {  
+
+            "name": "status_indication",
+            "description": "Monitor the status LED",
+            "device-name": ["status_led"]
+
+        },
+        {  
+
+            "name": "user_input",
+            "description": "Monitor user input",
+            "device-name": ["button"]
+
+        },
+        {
+            "name": "temperature_monitoring",
+            "description": "Measure ambient temperature",
+            "device-name": ["ambient_temperature"]
+        },
+        {
+            "name": "motion_detection",
+            "description": "Detect motion and acceleration",
+            "device-name": ["motion_sensor"]
+        },
+        {
+            "name": "configuration_management",
+            "description": "Manage persistent configuration storage",
+            "device-name": ["configuration_storage"]
+        },
+        {
+             "name": "image_capture",
+             "description": "Capture images using the main camera",
+             "device-name": ["main_camera"]
+        },
+         {
+             "name": "network_communication",
+             "description": "Communicate over the wireless network",
+             "device-name": ["wireless_network"]
+        },
+        {
+             "name": "power_management",
+             "description": "Monitor and manage power source",
+             "device-name": ["primary_power"]
+        },
+        {
+             "name": "debug_console_access",
+             "description": "Access the debug console for maintenance",
+             "device-name": ["debug_console"]
+        },
+        {
+            "name": "video_streaming",
+            "description": "Capture video and stream over network",
+            "device-name": ["main_camera", "network_interface"]
+        }
+    ]
+}

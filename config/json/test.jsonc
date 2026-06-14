@@ -1,0 +1,89 @@
+{
+  "tests": [
+    {
+      "name": "status_indication_test",
+      "description": "Verify status indication functionality",
+      "function": "status_indication"
+    },
+    {
+      "name": "user_input_test",
+      "description": "Verify user input functionality",
+      "function": "user_input"
+    },
+    {
+      "name": "temperature_monitoring_test",
+      "description": "Verify temperature monitoring functionality",
+      "function": "temperature_monitoring"
+    },
+    {
+      "name": "motion_detection_test",
+      "description": "Verify motion detection functionality",
+      "function": "motion_detection"
+    },
+    {
+      "name": "camera_capture_test",
+      "description": "Verify camera capture functionality",
+      "function": "camera_capture"
+    },
+    {
+      "name": "audio_capture_test",
+      "description": "Verify audio capture functionality",
+      "function": "audio_capture"
+    },
+    {
+      "name": "audio_playback_test",
+      "description": "Verify audio playback functionality",
+      "function": "audio_playback"
+    },
+    {
+      "name": "storage_access_test",
+      "description": "Verify storage access functionality",
+      "function": "storage_access"
+    },
+    {
+      "name": "network_connectivity_test",
+      "description": "Verify network connectivity functionality",
+      "function": "network_connectivity"
+    },
+    {
+      "name": "power_monitoring_test",
+      "description": "Verify power monitoring functionality",
+      "function": "power_monitoring"
+    },
+    {
+      "name": "debug_access_test",
+      "description": "Verify debug console functionality",
+      "function": "debug_access"
+    },
+    {
+      "name": "video_streaming_test",
+      "description": "Verify video streaming functionality",
+      "function": "video_streaming"
+    },
+    {
+      "name": "environmental_monitoring_test",
+      "description": "Verify environmental monitoring functionality",
+      "function": "environmental_monitoring"
+    },
+    {
+      "name": "audio_video_recording_test",
+      "description": "Verify audio and video recording functionality",
+      "function": "audio_video_recording"
+    },
+    {
+      "name": "system_health_monitoring_test",
+      "description": "Verify system health monitoring functionality",
+      "function": "system_health_monitoring"
+    },
+    {
+      "name": "factory_reset_test",
+      "description": "Verify factory reset functionality",
+      "function": "factory_reset"
+    },
+    {
+      "name": "remote_debug_test",
+      "description": "Verify remote debug functionality",
+      "function": "remote_debug"
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+    "schema_version": 1,
+    "platform": {
+        "name": "rk3588_evb",
+        "vendor": "rockchip",
+        "soc": "rk3588",
+        "description": "RK3588 Evaluation Board"
+    },
+
+    "features": {
+        "connectivity": {
+            "wifi": true,
+            "bluetooth": true,
+            "ethernet": true,
+            "gsm": false,
+            "lte": false,  
+            "5g": false,
+            "zigbee": false,
+            "nfc": false,
+            "gps": false,
+            "serial": true
+        },
+
+        "multimedia": {
+            "camera": true,
+            "audio": true,
+            "hdmi": true,
+            "isp": true
+        },
+
+        "acceleration": {
+            "gpu": true,
+            "npu": true
+        },
+
+        "expansion": {
+            "usb2": true,
+            "usb3": true,
+            "pcie": true
+        },
+
+        "system": {
+            "rtc": true,
+            "power_monitoring": true,
+            "temperature_monitoring": true
+        }
+    },
+
+    "bindings": [
+        {
+            "device": "status_led",
+            "plugin": "gpio_linux",
+            "interface": "gpio",
+
+            "configuration": {
+                "chip": "gpiochip0",
+                "line": 24,
+                "active_low": false
+            }
+        },
+
+        {
+            "device": "user_button",
+            "plugin": "gpio_linux",
+            "interface": "gpio",
+
+            "configuration": {
+                "chip": "gpiochip0",
+                "line": 26,
+                "active_low": true
+            }
+        },
+
+        {
+            "device": "ambient_temperature",
+            "plugin": "i2c_linux",
+            "interface": "i2c",
+            "compatible": "tmp102",
+
+            "configuration": {
+                "bus": "/dev/i2c-1",
+                "address": 72,
+                "frequency_hz": 100000
+            }
+        },
+
+        {
+            "device": "motion_sensor",
+            "plugin": "i2c_linux",
+            "interface": "i2c",
+            "compatible": "mpu6050",
+
+            "configuration": {
+                "bus": "/dev/i2c-1",
+                "address": 104,
+                "frequency_hz": 100000
+            }
+        },
+
+        {
+            "device": "main_camera",
+            "plugin": "camera_v4l2",
+            "interface": "v4l2",
+            "compatible": "ov5640",
+
+            "configuration": {
+                "device": "/dev/video0",
+                "pixel_format": "YUYV",
+                "resolution": "1920x1080"
+            }
+        }
+    ]
+}
