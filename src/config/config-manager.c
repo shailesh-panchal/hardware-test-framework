@@ -102,3 +102,49 @@ int32_t config_manager_deinit(config_manager_t *cfg_man){
 
     return 0;
 }
+
+int32_t config_manager_get_platform_info(config_manager_t *cfg_man, platform_info_t *platform_info) {
+    if((cfg_man == NULL) || (platform_info == NULL))
+        return -1;
+
+    memcpy(platform_info,&cfg_man->platform_config.platform,sizeof(platform_info_t));
+
+    return 0;
+}
+
+int32_t config_manager_get_platform_device_count(config_manager_t *cfg_man, uint32_t *device_count) {
+    if((cfg_man == NULL) || (device_count == NULL))
+        return -1;
+    
+    *device_count = cfg_man->platform_config.binding_count;
+    return 0;
+}
+
+int32_t config_manager_get_platform_device_by_index(config_manager_t *cfg_man, uint32_t index, device_binding_t *device_binding) {
+    if((cfg_man == NULL) || (device_binding == NULL))
+        return -1;
+    
+    if(index > cfg_man->platform_config.binding_count)
+        return -1;
+
+    memcpy(device_binding, &cfg_man->platform_config.bindings[index], sizeof(device_binding_t));
+    return 0;
+}
+
+int32_t config_manager_get_device_count(config_manager_t *cfg_man, uint32_t *device_count) {
+    if((cfg_man == NULL) || (device_count == NULL))
+        return -1;
+    
+    *device_count = cfg_man->device_config.count;
+    return 0;
+}
+int32_t config_manager_get_device_by_index(config_manager_t *cfg_man, uint32_t index, device_def_t *device) {
+    if((cfg_man == NULL) || (device == NULL))
+        return -1;
+    
+    if(index > cfg_man->device_config.count)
+        return -1;
+
+    memcpy(device, &cfg_man->device_config.devices[index], sizeof(device_def_t));
+    return 0;
+}

@@ -50,6 +50,7 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/src
     ${PROJECT_SOURCE_DIR}/src/config/
+    ${PROJECT_SOURCE_DIR}/src/device-manager/
     ${PROJECT_SOURCE_DIR}/src/utils
     ${PROJECT_SOURCE_DIR}/third-party/cjson-1.7.19
 )

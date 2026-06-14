@@ -54,6 +54,8 @@
 #define CONFIG_MANAGER_H
 
 #include <stdint.h>
+#include "device.h"
+#include "platform.h"
 
 /**
  * @brief Maximum configuration path length.
@@ -151,5 +153,95 @@ int32_t config_manager_print(
  */
 int32_t config_manager_load(
     config_manager_t *cfg_man);
+
+/**
+ * @brief Retrieve platform information from the Configuration Manager.
+ *
+ * Returns the platform information loaded from the platform
+ * configuration file.
+ *
+ * @param[in] cfg_man Pointer to the Configuration Manager instance.
+ * @param[out] platform_info Pointer to a structure that receives
+ *                           the platform information.
+ *
+ * @retval 0 Success.
+ * @retval -1 Failure.
+ */
+int32_t config_manager_get_platform_info(
+    config_manager_t *cfg_man, 
+    platform_info_t *platform_info);
+
+/**
+ * @brief Retrieve the number of device bindings defined for the platform.
+ *
+ * Returns the total number of device bindings loaded from the
+ * platform configuration file.
+ *
+ * @param[in] cfg_man Pointer to the Configuration Manager instance.
+ * @param[out] device_count Pointer to a variable that receives
+ *                          the number of platform device bindings.
+ *
+ * @retval 0 Success.
+ * @retval -1 Failure.
+ */
+int32_t config_manager_get_platform_device_count(
+    config_manager_t *cfg_man,
+    uint32_t *device_count);
+
+/**
+ * @brief Retrieve a platform device binding by index.
+ *
+ * Returns the device binding information associated with the
+ * specified index from the platform configuration.
+ *
+ * @param[in] cfg_man Pointer to the Configuration Manager instance.
+ * @param[in] index Zero-based index of the device binding.
+ * @param[out] device_binding Pointer to a structure that receives
+ *                            the device binding information.
+ *
+ * @retval 0 Success.
+ * @retval -1 Failure.
+ */
+int32_t config_manager_get_platform_device_by_index(
+    config_manager_t *cfg_man,
+    uint32_t index,
+    device_binding_t *device_binding);
+
+/**
+ * @brief Retrieve the number of logical devices defined in the device configuration.
+ *
+ * Returns the total number of device definitions loaded from the
+ * device configuration file.
+ *
+ * @param[in] cfg_man Pointer to the Configuration Manager instance.
+ * @param[out] device_count Pointer to a variable that receives
+ *                          the number of configured devices.
+ *
+ * @retval 0 Success.
+ * @retval -1 Failure.
+ */
+int32_t config_manager_get_device_count(
+    config_manager_t *cfg_man,
+    uint32_t *device_count);
+
+/**
+ * @brief Retrieve a logical device definition by index.
+ *
+ * Returns the device definition associated with the specified
+ * index from the device configuration.
+ *
+ * @param[in] cfg_man Pointer to the Configuration Manager instance.
+ * @param[in] index Zero-based index of the device definition.
+ * @param[out] device Pointer to a structure that receives
+ *                    the device definition.
+ *
+ * @retval 0 Success.
+ * @retval -1 Failure.
+ */
+int32_t config_manager_get_device_by_index(
+    config_manager_t *cfg_man,
+    uint32_t index,
+    device_def_t *device);
+
 
 #endif /* CONFIG_MANAGER_H */
