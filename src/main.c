@@ -6,13 +6,16 @@
 
 #include "config-manager.h"
 
-int32_t main() {
+int32_t main(int argc, char *argv[]) {
 
-    printf("Welcome to Hardware Validator Framework!\n");
+    if(argc != 2) {
+        printf("Usage: %s <config_path>\n",argv[0]);
+        return EXIT_FAILURE;
+    }
 
     config_manager_t *config_manager = NULL;
 
-    config_manager = config_manager_init("C:/data_backup/workspace/hardware-test-framework/config/json");
+    config_manager = config_manager_init(argv[1]);
 
     if(config_manager == NULL)
         return EXIT_FAILURE;
@@ -22,7 +25,9 @@ int32_t main() {
         return EXIT_FAILURE;
     }
 
+    printf("Config Manager initialized with path: %s\n", argv[1]);
+
     config_manager_print(config_manager);
 
-    return 0;
+    return EXIT_SUCCESS;
 }
