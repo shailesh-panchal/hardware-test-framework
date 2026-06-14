@@ -38,8 +38,7 @@ Tests never reference:
 
 Support multiple platforms such as:
 
-* Rockchip RK3588
-* Novatek NT9853x
+* STM32MP
 * NXP i.MX Series
 * TI AM62x
 * NVIDIA Jetson
@@ -125,7 +124,6 @@ allowing the core framework to remain platform independent.
 
 ## Target Applications
 
-* IP Cameras
 * AI Edge Devices
 * Industrial Gateways
 * IoT Devices
