@@ -18,7 +18,7 @@
 #define FUNCTION_JSON_KEY_DEVICE_NAME "device-name"
 
 
-void function_print(fuction_config_t* cfg) {
+void function_print(function_config_t* cfg) {
 
     if (cfg == NULL)
         return;
@@ -41,7 +41,7 @@ void function_print(fuction_config_t* cfg) {
     
 }
 
-int32_t function_parser_load(const char* filename,fuction_config_t* cfg){
+int32_t function_parser_load(const char* filename,function_config_t* cfg){
 
     if (filename == NULL || cfg == NULL) {
         return -1;

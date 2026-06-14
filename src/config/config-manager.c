@@ -16,7 +16,7 @@ struct config_manager_t{
     
     char config_path[CONFIG_MANAGER_FILE_PATH];
     device_config_t device_config;
-    fuction_config_t function_config;
+    function_config_t function_config;
     test_config_t test_config;
     platform_config_t platform_config;
 
