@@ -38,7 +38,13 @@ int32_t main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    uint32_t platform_device_count = device_manager_get_count(device_manager);
+    uint32_t platform_device_count = 0; 
+    
+    if(0 != device_manager_get_count(device_manager,&platform_device_count)) {
+        printf("failed to get the platform device count\n");
+        device_manager_deinit(device_manager);
+        config_manager_deinit(config_manager);
+    }
 
     printf("Totatl Register platform device is %d\n",platform_device_count);
 

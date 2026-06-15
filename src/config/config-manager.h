@@ -243,5 +243,41 @@ int32_t config_manager_get_device_by_index(
     uint32_t index,
     device_def_t *device);
 
+    /**
+ * @brief Retrieve the number of logical function defined in the function configuration.
+ *
+ * Returns the total number of function definitions loaded from the
+ * function configuration file.
+ *
+ * @param[in] cfg_man Pointer to the Configuration Manager instance.
+ * @param[out] count Pointer to a variable that receives
+ *                          the number of configured functions.
+ *
+ * @retval 0 Success.
+ * @retval -1 Failure.
+ */
+int32_t config_manager_get_function_count(
+    config_manager_t *cfg_man,
+    uint32_t *count);
+
+
+/**
+ * @brief Retrieve a logical function definition by index.
+ *
+ * Returns the function definition associated with the specified
+ * index from the function configuration.
+ *
+ * @param[in] cfg_man Pointer to the Configuration Manager instance.
+ * @param[in] index Zero-based index of the function definition.
+ * @param[out] function Pointer to a structure that receives
+ *                    the function definition.
+ *
+ * @retval 0 Success.
+ * @retval -1 Failure.
+ */
+int32_t config_manager_get_function_by_index(
+    config_manager_t *cfg_man,
+    uint32_t index,
+    function_def_t *function);
 
 #endif /* CONFIG_MANAGER_H */

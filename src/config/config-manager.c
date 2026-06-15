@@ -148,3 +148,22 @@ int32_t config_manager_get_device_by_index(config_manager_t *cfg_man, uint32_t i
     memcpy(device, &cfg_man->device_config.devices[index], sizeof(device_def_t));
     return 0;
 }
+
+int32_t config_manager_get_function_count(config_manager_t *cfg_man, uint32_t *count) {
+    if((cfg_man == NULL) || (count == NULL))
+        return -1;
+    
+    *count = cfg_man->function_config.count;
+    return 0;
+}
+
+int32_t config_manager_get_function_by_index(config_manager_t *cfg_man, uint32_t index, function_def_t *function) {
+    if((cfg_man == NULL) || (function == NULL))
+        return -1;
+    
+    if(index > cfg_man->function_config.count)
+        return -1;
+
+    memcpy(function, &cfg_man->function_config.functions[index], sizeof(function_def_t));
+    return 0;
+}

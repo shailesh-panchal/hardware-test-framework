@@ -107,11 +107,25 @@ int32_t device_manager_deinit(device_manager_t* dm) {
     return 0;
 }
 
-int32_t device_manager_get_count(device_manager_t* dm) {
+int32_t device_manager_get_count(device_manager_t* dm, uint32_t *count) {
     if(dm == NULL)
         return -1;
 
-    return dm->count;
+    *count =  dm->count;
+
+    return 0;
+}
+
+int32_t device_manager_get_device_by_index(device_manager_t* dm, uint32_t index, Device_t *device) {
+    if(dm == NULL)
+        return -1;
+
+    if(index > dm->count)
+        return -1;
+
+    memcpy(device, &dm->devices[index],sizeof(Device_t));
+
+    return 0;
 }
 
 DeviceState_e device_manager_get_state(device_manager_t* dm, const char* name) {

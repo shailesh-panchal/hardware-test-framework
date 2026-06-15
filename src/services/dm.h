@@ -144,11 +144,34 @@ int32_t device_manager_deinit(
  * the Device Manager.
  *
  * @param[in] dm Pointer to the Device Manager instance.
+ * @param[out] count Pointer to a variable that receives
+ *                          the number of configured platform device.
  *
- * @return Number of registered devices.
+ * @retval 0 Success.
+ * @retval -1 Failure.
  */
 int32_t device_manager_get_count(
-    device_manager_t* dm);
+    device_manager_t* dm,
+     uint32_t *count);
+
+/**
+ * @brief Retrieve a logical device information by index.
+ *
+ * Returns the logical device information associated with the specified
+ * index from the device manager configuration.
+ *
+ * @param[in] dm Pointer to the device Manager instance.
+ * @param[in] index Zero-based index of the device information.
+ * @param[out] function Pointer to a structure that receives
+ *                    the device information.
+ *
+ * @retval 0 Success.
+ * @retval -1 Failure.
+ */
+int32_t device_manager_get_device_by_index(
+    device_manager_t* dm,
+    uint32_t index,
+    Device_t *device);
 
 /**
  * @brief Retrieve the current state of a device.
