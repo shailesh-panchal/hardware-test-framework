@@ -13,7 +13,7 @@
  * - Hardware-specific configuration parameters.
  *
  * The platform configuration serves as the bridge between logical devices
- * defined in device.yaml and the actual hardware resources available on
+ * defined in device.json and the actual hardware resources available on
  * a specific board or SoC.
  *
  * Relationship with other configuration files:
@@ -132,7 +132,7 @@ typedef struct
 /**
  * @brief Device binding definition.
  *
- * Maps a logical device defined in device.yaml to a
+ * Maps a logical device defined in device.json to a
  * hardware-specific implementation on the platform.
  */
 typedef struct
@@ -140,7 +140,7 @@ typedef struct
     /**
      * @brief Logical device name.
      *
-     * Must match a device defined in device.yaml.
+     * Must match a device defined in device.json.
      */
     char device[DEVICE_NAME_LENGTH];
 
@@ -248,7 +248,7 @@ typedef struct {
 /**
  * @brief Runtime platform configuration database.
  *
- * Stores all information loaded from platform.yaml.
+ * Stores all information loaded from platform.json.
  */
 typedef struct
 {

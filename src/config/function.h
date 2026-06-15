@@ -12,17 +12,17 @@
  * Relationship with other configuration files:
  *
  * @code
- * device.yaml
+ * device.json
  *      |
  *      | Defines logical devices
  *      v
- * function.yaml
+ * function.json
  *      |
  *      | Groups one or more devices into a logical function
  *      v
  * Function Manager
  *
- * test.yaml
+ * test.json
  *      |
  *      | References functions
  *      v
@@ -84,14 +84,14 @@
  * @brief Device name reference.
  *
  * Represents a logical device associated with a function.
- * The referenced device must exist in device.yaml.
+ * The referenced device must exist in device.json.
  */
 typedef struct
 {
     /**
      * @brief Device name.
      *
-     * Must match a device defined in device.yaml.
+     * Must match a device defined in device.json.
      */
     char name[FUNCTION_NAME_LENGTH];
 
@@ -139,7 +139,7 @@ typedef struct
 /**
  * @brief Runtime function configuration database.
  *
- * Stores all function definitions loaded from function.yaml
+ * Stores all function definitions loaded from function.json
  * or function.jsonc.
  */
 typedef struct

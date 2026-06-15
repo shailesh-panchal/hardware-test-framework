@@ -7,7 +7,7 @@
  * (test.yaml or test.jsonc).
  *
  * A test definition represents a validation test that is associated with
- * a logical function defined in function.yaml.
+ * a logical function defined in function.json.
  *
  * The Test Parser is responsible for:
  * - Parsing test configuration files.
@@ -93,7 +93,7 @@ typedef struct
     /**
      * @brief Associated function name.
      *
-     * Must match a function defined in function.yaml.
+     * Must match a function defined in function.json.
      *
      * Example:
      * - temperature_monitoring

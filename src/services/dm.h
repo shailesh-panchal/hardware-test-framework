@@ -6,8 +6,8 @@
  * registry used by the Hardware Test Framework.
  *
  * It combines:
- * - Logical device definitions from device.yaml
- * - Platform-specific device bindings from platform.yaml
+ * - Logical device definitions from device.json
+ * - Platform-specific device bindings from platform.json
  *
  * to create a unified runtime representation of each device.
  *
@@ -72,9 +72,9 @@ typedef enum
 /**
  * @brief Runtime representation of a device.
  *
- * Combines the logical device definition from device.yaml
+ * Combines the logical device definition from device.json
  * with the platform-specific binding information from
- * platform.yaml and maintains the current runtime state.
+ * platform.json and maintains the current runtime state.
  *
  * This structure serves as the Device Manager's internal
  * device database entry.
