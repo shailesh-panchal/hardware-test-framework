@@ -138,7 +138,8 @@ int32_t function_manager_deinit(
  * @return Number of registered functions.
  */
 int32_t function_manager_get_count(
-    function_manager_t* fm);
+    function_manager_t* fm,
+    uint32_t *count);
 
 /**
  * @brief Retrieve a function by name.
@@ -157,7 +158,7 @@ int32_t function_manager_get_count(
 int32_t function_manager_get_function(
     function_manager_t* fm,
     const char* name,
-    Function_t* function);
+    function_def_t* function);
 
 /**
  * @brief Retrieve a function by index.
@@ -176,7 +177,7 @@ int32_t function_manager_get_function(
 int32_t function_manager_get_function_by_index(
     function_manager_t* fm,
     uint32_t index,
-    Function_t* function);
+    function_def_t* function);
 
 /**
  * @brief Check whether a function is available.
@@ -209,29 +210,9 @@ bool function_manager_is_available(
  */
 int32_t function_manager_get_device_count(
     function_manager_t* fm,
-    const char* function_name,
+    const char* name,
     uint32_t* count);
 
-/**
- * @brief Retrieve a function device by index.
- *
- * Returns the device associated with the specified function
- * and device index.
- *
- * @param[in] fm Pointer to the Function Manager instance.
- * @param[in] function_name Function name.
- * @param[in] index Zero-based device index.
- * @param[out] device Pointer to a structure that receives
- *                    the device information.
- *
- * @retval 0 Success.
- * @retval -1 Failure.
- */
-int32_t function_manager_get_device_by_index(
-    function_manager_t* fm,
-    const char* function_name,
-    uint32_t index,
-    Device_t* device);
 
 #ifdef __cplusplus
 }

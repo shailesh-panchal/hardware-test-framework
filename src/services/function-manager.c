@@ -81,3 +81,72 @@ function_manager_t* function_manager_init(config_manager_t* config_manager,devic
 
     return fm;
 }
+
+int32_t function_manager_deinit(function_manager_t* fm) {
+    if(fm == NULL)
+        return -1;
+
+    free(fm);
+
+    return 0;
+}
+
+int32_t function_manager_get_count(function_manager_t* fm, uint32_t *count){
+    if(fm == NULL)
+        return -1;
+
+    *count = fm->count;
+
+    return 0;
+}
+
+int32_t function_manager_get_function(function_manager_t* fm, const char* name, function_def_t* function){
+    if((fm == NULL) || (function == NULL) || (name == NULL))
+        return -1;
+
+    for (uint32_t index =0; index < fm->count; index++){
+        if(safe_string_compare(name,fm->functions[index].name)) {
+            memcpy(function, &fm->functions[index],sizeof(function_def_t));
+            return 1;
+        }
+    }
+    return -1;
+}
+
+int32_t function_manager_get_function_by_index(function_manager_t* fm, uint32_t index, function_def_t* function){
+    if((fm == NULL) || (function == NULL))
+        return -1;
+    
+    if(index >= fm->count) {
+        return -1;
+    }
+    memcpy(function, &fm->functions[index],sizeof(function_def_t));
+    return 1;
+}
+
+bool function_manager_is_available(function_manager_t* fm, const char* name) {
+    if((fm == NULL)  || (name == NULL))
+        return 0;
+
+    for (uint32_t index =0; index < fm->count; index++){
+        if(safe_string_compare(name,fm->functions[index].name)) {
+            return fm->functions[index].available;
+        }
+    }
+
+    return 0;
+}
+
+int32_t function_manager_get_device_count(function_manager_t* fm, const char* name, uint32_t* count){
+    if((fm == NULL) || (count == NULL) || (name == NULL))
+        return -1;
+
+    for (uint32_t index =0; index < fm->count; index++){
+        if(safe_string_compare(name,fm->functions[index].name)) {
+            *count = fm->functions[index].definition.count;
+            return 1;
+        }
+    }
+    return 0;
+}
+
