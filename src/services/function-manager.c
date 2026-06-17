@@ -39,24 +39,44 @@ static int32_t prepare_function_info(function_manager_t* fm, config_manager_t* c
         return -1;
     }
     uint32_t fm_count = 0;
+    bool match_found = 0;
+    uint32_t total_match_found = 0;
     for(uint32_t fun_index =0; fun_index < function_count; fun_index++) {
         if(0 != config_manager_get_function_by_index(cm,fun_index,&function_def)) {
             printf("failed  to getn function defination\n");
             continue;
         }
+        if(function_def.count == 0)
+            continue;
 
-        for(uint32_t device_index=0; device_index < device_count; device_index++) {
-            if(0 != device_manager_get_device_by_index(dm, device_index, &device)) {
-                printf("failed to get the device information for device_index %d\n",device_index);
-                continue;
+        total_match_found = 0;
+        //loop of the device which is required for function.
+        for(uint8_t temp_index=0; temp_index < function_def.count; temp_index++){
+            match_found = 0;
+            for(uint32_t device_index=0; device_index < device_count; device_index++) {
+
+                if(0 != device_manager_get_device_by_index(dm, device_index, &device)) {
+                    printf("failed to get the device information for device_index %d\n",device_index);
+                    continue;
+                }
+                if(safe_string_compare(device.name,function_def.device_name[temp_index].name)) {
+                    match_found = 1; 
+                    break;
+                }
             }
-            if(safe_string_compare(device.name,function_def.name)) {
-                safe_string_copy(fm->functions[fm_count].name,function_def.name,sizeof(fm->functions[fm_count].name));
-                fm->functions[fm_count].available = 1;
-                memcpy(&fm->functions[fm_count].definition,&function_def,sizeof(function_def));
-                fm->count = fm_count;
-                fm_count++;
-            }
+            //break loop as device name not match with function name
+            if(match_found == 0)
+                break;
+            else
+                total_match_found++;
+        }
+        if(total_match_found == function_def.count) {
+            //mark presence of device 
+            fm->functions[fm_count].available = 1;
+            safe_string_copy(fm->functions[fm_count].name,function_def.name,sizeof(fm->functions[fm_count].name));
+            memcpy(&fm->functions[fm_count].definition,&function_def,sizeof(function_def_t));
+            fm->count = fm_count + 1;
+            fm_count++;
         }
     }
 
@@ -116,12 +136,12 @@ int32_t function_manager_get_function(function_manager_t* fm, const char* name, 
 int32_t function_manager_get_function_by_index(function_manager_t* fm, uint32_t index, function_def_t* function){
     if((fm == NULL) || (function == NULL))
         return -1;
-    
     if(index >= fm->count) {
         return -1;
     }
-    memcpy(function, &fm->functions[index],sizeof(function_def_t));
-    return 1;
+    
+    memcpy(function, &fm->functions[index].definition,sizeof(function_def_t));
+    return 0;
 }
 
 bool function_manager_is_available(function_manager_t* fm, const char* name) {
@@ -150,3 +170,36 @@ int32_t function_manager_get_device_count(function_manager_t* fm, const char* na
     return 0;
 }
 
+int32_t function_manager_get_device_by_index(function_manager_t* fm, char *name,uint32_t device_index, device_name_t* device_name){
+    if((fm == NULL) || (device_name == NULL) || (name == NULL))
+        return -1;
+
+    for (uint32_t index =0; index < fm->count; index++){
+        if(safe_string_compare(name,fm->functions[index].name)) {
+            if(device_index < fm->functions[index].definition.count) {
+                memcpy(device_name,&fm->functions[index].definition.device_name[device_index],sizeof(device_name_t));
+                return 0;
+            }
+        }
+    }
+    return -1;
+}
+
+int32_t function_manager_print(function_manager_t* fm) {
+    if(fm == NULL)
+        return -1;
+
+    printf("Total available function count %d\n",fm->count);
+
+    for(uint16_t function_count =0; function_count < fm->count; function_count++) {
+        printf("name: %s\n",fm->functions[function_count].name);
+        printf("available: %d\n",fm->functions[function_count].available);
+        printf("device descriptor %s\n",fm->functions[function_count].definition.description);
+        printf("device name %s\n",fm->functions[function_count].definition.name);
+        for(uint16_t device_count = 0; device_count < fm->functions[function_count].definition.count; device_count++) {
+            printf("device name %s\n",fm->functions[function_count].definition.device_name[device_count].name);
+        }
+    }
+
+    return 0;
+}

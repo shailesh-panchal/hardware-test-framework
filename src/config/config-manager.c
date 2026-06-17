@@ -94,6 +94,16 @@ int32_t config_manager_print(config_manager_t *cfg_man) {
     return 0;
 }
 
+int32_t config_manager_platform_print(config_manager_t *cfg_man) {
+    if(cfg_man == NULL)
+        return -1;
+
+    platform_print(&cfg_man->platform_config);
+
+    return 0;
+}
+
+
 int32_t config_manager_deinit(config_manager_t *cfg_man){
     if(cfg_man == NULL)
         return -1;

@@ -128,6 +128,23 @@ int32_t config_manager_print(
     config_manager_t *cfg_man);
 
 /**
+ * @brief Print loaded configuration information of platform.
+ *
+ * Displays the currently loaded configuration data for
+ * debugging and verification purposes.
+ *
+ * Typical output may include:
+ * - Platform information
+ *
+ * @param[in] cfg_man Configuration Manager instance.
+ *
+ * @retval 0 Success.
+ * @retval -1 Failure.
+ */
+int32_t config_manager_platform_print(
+    config_manager_t *cfg_man);
+
+/**
  * @brief Load framework configuration files.
  *
  * Loads and validates all configuration files associated
