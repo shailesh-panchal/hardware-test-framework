@@ -12,7 +12,7 @@
 
             "name": "user_input",
             "description": "Monitor user input",
-            "device-name": ["button"]
+            "device-name": ["user_button"]
 
         },
         {

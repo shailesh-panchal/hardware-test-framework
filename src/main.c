@@ -46,26 +46,44 @@ int32_t main(int argc, char *argv[]) {
         printf("failed to get the platform device count\n");
         device_manager_deinit(device_manager);
         config_manager_deinit(config_manager);
+        return EXIT_FAILURE;
     }
 
     printf("Totatl Register platform device is %d\n",platform_device_count);
+    //config_manager_platform_print(config_manager);
 
     function_manager = function_manager_init(config_manager,device_manager);
     if(function_manager == NULL) {
         printf("failed init the function manager\n");
         device_manager_deinit(device_manager);
         config_manager_deinit(config_manager);
+        return EXIT_FAILURE;
     }
 
-    if(0 != device_manager_get_count(device_manager,&function_count)) {
+    if(0 != function_manager_get_count(function_manager,&function_count)) {
         printf("failed to get the platform device count\n");
         device_manager_deinit(device_manager);
         config_manager_deinit(config_manager);
         function_manager_deinit(function_manager);
+        return EXIT_FAILURE;
     }
 
     printf("Totatl function is %d\n",function_count);
 
+    function_def_t function_def = {0};
 
+    if(0 != function_manager_get_function_by_index(function_manager,0,&function_def)){
+        printf("failed to get the function information by index\n");
+        device_manager_deinit(device_manager);
+        config_manager_deinit(config_manager);
+        function_manager_deinit(function_manager);   
+        return EXIT_FAILURE;
+    }
+
+    function_manager_print(function_manager);
+
+    device_manager_deinit(device_manager);
+    config_manager_deinit(config_manager);
+    function_manager_deinit(function_manager);
     return EXIT_SUCCESS;
 }

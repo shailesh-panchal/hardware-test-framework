@@ -214,6 +214,41 @@ int32_t function_manager_get_device_count(
     uint32_t* count);
 
 
+/**
+ * @brief Retrieve the number of devices associated with a function.
+ *
+ * Returns the number of logical devices required by the
+ * specified function.
+ *
+ * @param[in] fm Pointer to the Function Manager instance.
+ * @param[in] function_name Function name.
+ * @param[in] index of device in function defination.
+ * @param[out] device_name Pointer to a variable that receives
+ *                   the device name.
+ *
+ * @retval 0 Success.
+ * @retval -1 Failure.
+ */
+int32_t function_manager_get_device_by_index(
+    function_manager_t* fm,
+    char *name,
+    uint32_t device_index,
+    device_name_t* device_name);
+
+/**
+ * @brief print function manager information
+ *
+ * Returns the number of logical devices required by the
+ * specified function.
+ *
+ * @param[in] fm Pointer to the Function Manager instance.
+ * 
+ * @retval 0 Success.
+ * @retval -1 Failure.
+ */
+int32_t function_manager_print(
+    function_manager_t* fm);
+
 #ifdef __cplusplus
 }
 #endif
