@@ -58,12 +58,15 @@ static int32_t prepare_device_info(device_manager_t* dm, config_manager_t* confi
 
             if(safe_string_compare(device_configuration.name,device_binding.device)) {
                //match the device and platform information. 
-               safe_string_copy(dm->devices[dm_count].name,device_configuration.name,sizeof(dm->devices[dm_count].name));
-               dm->devices[dm_count].state = DEVICE_STATE_REGISTERED;
-               memcpy(&dm->devices[dm_count].definition,&device_configuration,sizeof(device_def_t));
-               memcpy(&dm->devices[dm_count].binding,&device_binding,sizeof(device_binding_t));
-               dm->count = dm_count;
-               dm_count++;
+               //check that device is enabled in platform or not.
+               if(device_binding.is_enabled) {
+                    safe_string_copy(dm->devices[dm_count].name,device_configuration.name,sizeof(dm->devices[dm_count].name));
+                    dm->devices[dm_count].state = DEVICE_STATE_REGISTERED;
+                    memcpy(&dm->devices[dm_count].definition,&device_configuration,sizeof(device_def_t));
+                    memcpy(&dm->devices[dm_count].binding,&device_binding,sizeof(device_binding_t));
+                    dm->count = dm_count  + 1;
+                    dm_count++;
+               }
             }
         }
     }

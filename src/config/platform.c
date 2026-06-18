@@ -18,34 +18,6 @@
 #define PLATFORM_JSON_KEY_FEATURES "features"
 #define PLATFORM_JSON_KEY_BINDINGS "bindings"
 
-typedef struct {
-    const char *name;
-    size_t offset;
-}feature_map_t;
-
-const feature_map_t feature_registry[] = {
-#define X(name) { #name, offsetof(platform_features_t, name) },
-    EXPAND_ALL_FEATURES
-#undef X
-};
-
-#define TOTAL_FEATURES (sizeof(feature_registry) / sizeof(feature_registry[0]))
-
-static int32_t get_feature_category(const cJSON *obj, const char *category_name, const char *feature_name, bool *feature) {
-    cJSON *category = cJSON_GetObjectItemCaseSensitive(obj, category_name);
-    if (!cJSON_IsObject(category)) {
-        return -1;
-    }
-
-    cJSON *feature_item = cJSON_GetObjectItemCaseSensitive(category, feature_name);
-    if (cJSON_IsBool(feature_item)) {
-        *feature = feature_item->valueint;
-        return 0;
-    }
-    return -1;
-}
-
-
 static int32_t get_gpio(cJSON *config, uint32_t binding_count, platform_config_t *cfg) {
     uint8_t count = 0;
     if (config == NULL || cfg == NULL) {
@@ -117,17 +89,6 @@ static int32_t get_i2c(cJSON *config, uint32_t binding_count, platform_config_t 
     return 0;
 }
 
-static void print_feature_status(const platform_features_t *plat, const char *name) {
-    for (size_t i = 0; i < TOTAL_FEATURES; i++) {
-        if (safe_string_compare(feature_registry[i].name, name)) {
-            const bool *status_ptr = (const bool *)((const char *)plat + feature_registry[i].offset);
-            printf("%s is %s\n", feature_registry[i].name, *status_ptr ? "enabled" : "disabled");
-            return;
-        }
-    }
-    printf("Error: Feature '%s' not recognized.\n", name);
-}
-
 void platform_print(platform_config_t* cfg) {
 
     if(cfg == NULL) {
@@ -143,31 +104,6 @@ void platform_print(platform_config_t* cfg) {
     printf(" Soc: %s\n",cfg->platform.soc);
     printf(" Description: %s\n",cfg->platform.description);
     printf(" Device bind count: %d\n",cfg->binding_count);
-
-    
-    printf("Platform supported feature list\n");
-    print_feature_status(&cfg->features,"wifi");
-    print_feature_status(&cfg->features,"bluetooth");
-    print_feature_status(&cfg->features,"ethernet");
-    print_feature_status(&cfg->features,"gsm");
-    print_feature_status(&cfg->features,"lte");
-    print_feature_status(&cfg->features,"fiveg");
-    print_feature_status(&cfg->features,"zigbee");
-    print_feature_status(&cfg->features,"nfc");
-    print_feature_status(&cfg->features,"gps");
-    print_feature_status(&cfg->features,"serial");
-    print_feature_status(&cfg->features,"camera");
-    print_feature_status(&cfg->features,"audio");
-    print_feature_status(&cfg->features,"hdmi");
-    print_feature_status(&cfg->features,"isp");
-    print_feature_status(&cfg->features,"gpu");
-    print_feature_status(&cfg->features,"npu");
-    print_feature_status(&cfg->features,"internal_usb");
-    print_feature_status(&cfg->features,"external_usb");
-    print_feature_status(&cfg->features,"pci");
-    print_feature_status(&cfg->features,"rtc");
-    print_feature_status(&cfg->features,"power_monitoring");
-    print_feature_status(&cfg->features,"temperature_monitoring");
 
     for(uint16_t index =0; index < cfg->binding_count; index++) {
 
@@ -252,18 +188,6 @@ int32_t platform_parser_load(const char* filename,platform_config_t* cfg){
         get_string(platform, "description", cfg->platform.description, sizeof(cfg->platform.description));
     }
 
-    // 2. Extract Features Matrix
-    cJSON *features = cJSON_GetObjectItemCaseSensitive(root, "features");
-    if (cJSON_IsObject(features)) {
-        get_feature_category(features, "connectivity", "wifi", &cfg->features.wifi);
-        get_feature_category(features, "connectivity", "bluetooth", &cfg->features.bluetooth);
-        get_feature_category(features, "connectivity", "ethernet", &cfg->features.ethernet);
-        get_feature_category(features, "connectivity", "gsm", &cfg->features.gsm);
-        get_feature_category(features, "connectivity", "lte", &cfg->features.lte);
-        get_feature_category(features, "connectivity", "5g", &cfg->features.fiveg);
-        get_feature_category(features, "connectovity", "zigbee",&cfg->features.zigbee);
-    }
-
     cJSON *bindings = cJSON_GetObjectItemCaseSensitive(root, "bindings");
     cfg->binding_count = 0;
     if (cJSON_IsArray(bindings)) {
@@ -273,8 +197,9 @@ int32_t platform_parser_load(const char* filename,platform_config_t* cfg){
             get_string(binding,"device",cfg->bindings[cfg->binding_count].device,sizeof(cfg->bindings->device));
             get_string(binding, "plugin",cfg->bindings[cfg->binding_count].plugin,sizeof(cfg->bindings->plugin));
             get_string(binding, "interface",cfg->bindings[cfg->binding_count].interface,sizeof(cfg->bindings->interface));
+            get_bool(binding,"enable",&cfg->bindings[cfg->binding_count].is_enabled);
             get_string(binding, "compatible",cfg->bindings[cfg->binding_count].compatible,sizeof(cfg->bindings->compatible));
-
+            
             cJSON *config = cJSON_GetObjectItemCaseSensitive(binding, "configuration");
             if (cJSON_IsObject(config)) {
                 if(safe_string_compare(cfg->bindings->interface,"gpio")) {

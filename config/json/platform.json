@@ -7,50 +7,12 @@
         "description": "RK3588 Evaluation Board"
     },
 
-    "features": {
-        "connectivity": {
-            "wifi": true,
-            "bluetooth": true,
-            "ethernet": true,
-            "gsm": false,
-            "lte": false,  
-            "5g": false,
-            "zigbee": false,
-            "nfc": false,
-            "gps": false,
-            "serial": true
-        },
-
-        "multimedia": {
-            "camera": true,
-            "audio": true,
-            "hdmi": true,
-            "isp": true
-        },
-
-        "acceleration": {
-            "gpu": true,
-            "npu": true
-        },
-
-        "expansion": {
-            "usb2": true,
-            "usb3": true,
-            "pcie": true
-        },
-
-        "system": {
-            "rtc": true,
-            "power_monitoring": true,
-            "temperature_monitoring": true
-        }
-    },
-
     "bindings": [
         {
             "device": "status_led",
             "plugin": "gpio_linux",
             "interface": "gpio",
+            "enable" : true,
 
             "configuration": {
                 "chip": "gpiochip0",
@@ -63,6 +25,7 @@
             "device": "user_button",
             "plugin": "gpio_linux",
             "interface": "gpio",
+            "enable" : true,
 
             "configuration": {
                 "chip": "gpiochip0",
@@ -75,6 +38,7 @@
             "device": "ambient_temperature",
             "plugin": "i2c_linux",
             "interface": "i2c",
+            "enable" : true,
             "compatible": "tmp102",
 
             "configuration": {
@@ -88,6 +52,7 @@
             "device": "motion_sensor",
             "plugin": "i2c_linux",
             "interface": "i2c",
+            "enable" : true,
             "compatible": "mpu6050",
 
             "configuration": {
@@ -101,6 +66,7 @@
             "device": "main_camera",
             "plugin": "camera_v4l2",
             "interface": "v4l2",
+            "enable" : true,
             "compatible": "ov5640",
 
             "configuration": {
