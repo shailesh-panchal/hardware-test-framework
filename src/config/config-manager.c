@@ -177,3 +177,21 @@ int32_t config_manager_get_function_by_index(config_manager_t *cfg_man, uint32_t
     memcpy(function, &cfg_man->function_config.functions[index], sizeof(function_def_t));
     return 0;
 }
+
+int32_t config_manager_get_test_count(config_manager_t *cfg_man, uint32_t *count) {
+    if((cfg_man == NULL) || (count == NULL))
+        return -1;
+    
+    *count = cfg_man->test_config.count;
+    return 0;
+}
+int32_t config_manager_get_test_by_index(config_manager_t *cfg_man, uint32_t index, test_def_t *test) {
+    if((cfg_man == NULL) || (test == NULL))
+        return -1;
+    
+    if(index > cfg_man->test_config.count)
+        return -1;
+
+    memcpy(test, &cfg_man->test_config.tests[index], sizeof(test_def_t));
+    return 0;
+}
