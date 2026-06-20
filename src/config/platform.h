@@ -168,6 +168,13 @@ typedef struct
     char interface[INTERFACE_NAME_LENGTH];
 
     /**
+     * @brief  * Indicates whether the device is enabled in the platform
+     *
+     * Similar to Linux Device Tree compatible strings.
+     */
+    bool is_enabled;
+
+    /**
      * @brief Compatible device identifier.
      *
      * Similar to Linux Device Tree compatible strings.
@@ -261,11 +268,6 @@ typedef struct
      * @brief Platform information.
      */
     platform_info_t platform;
-
-    /**
-     * @brief Platform feature set.
-     */
-    platform_features_t features;
 
     /**
      * @brief Number of valid device bindings.
