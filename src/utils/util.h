@@ -49,4 +49,13 @@
  */
 char* read_file_to_string(const char *filename);
 
+/**
+ * @brief Get current monotonic time in milliseconds.
+ *
+ * Provides a continuously increasing timestamp used
+ * for test execution timing and timeout handling.
+ *
+ * @return Current timestamp in milliseconds.
+ */
+uint64_t get_time_ms(void);
 #endif /* UTIL_H */
