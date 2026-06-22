@@ -10,6 +10,9 @@
 #include "function-manager.h"
 #include "safe_string.h"
 
+#define LOG_MODULE "FUNCTION_MANAGER"
+#include "logger.h"
+
 
 struct function_manager_t
 {
@@ -30,12 +33,15 @@ static int32_t prepare_function_info(function_manager_t* fm, config_manager_t* c
     Device_t device = {0};
 
     if(0 != config_manager_get_function_count(cm, &function_count)) {
-        printf("failed to get the function count \n");
+        // printf("failed to get the function count \n");
+        LOG_ERROR("failed to get the function count");
         return -1;
     }
 
     if(0 != device_manager_get_count(dm, &device_count)) {
-        printf("failed to get the platform device count \n");
+        // printf("failed to get the platform device count \n");
+        LOG_ERROR("failed to get the platform device count");
+
         return -1;
     }
     uint32_t fm_count = 0;
@@ -43,7 +49,8 @@ static int32_t prepare_function_info(function_manager_t* fm, config_manager_t* c
     uint32_t total_match_found = 0;
     for(uint32_t fun_index =0; fun_index < function_count; fun_index++) {
         if(0 != config_manager_get_function_by_index(cm,fun_index,&function_def)) {
-            printf("failed  to getn function defination\n");
+            // printf("failed  to getn function defination\n");
+            LOG_ERROR("failed to get function definition");
             continue;
         }
         if(function_def.count == 0)
@@ -56,7 +63,8 @@ static int32_t prepare_function_info(function_manager_t* fm, config_manager_t* c
             for(uint32_t device_index=0; device_index < device_count; device_index++) {
 
                 if(0 != device_manager_get_device_by_index(dm, device_index, &device)) {
-                    printf("failed to get the device information for device_index %d\n",device_index);
+                    // printf("failed to get the device information for device_index %d\n",device_index);
+                    LOG_DEBUG("failed to get the device information for device_index %d", device_index);
                     continue;
                 }
                 if(safe_string_compare(device.name,function_def.device_name[temp_index].name)) {
@@ -189,15 +197,23 @@ int32_t function_manager_print(function_manager_t* fm) {
     if(fm == NULL)
         return -1;
 
-    printf("Total available function count %d\n",fm->count);
+    // printf("Total available function count %d\n",fm->count);
+    LOG_INFO("Total available function count %d", fm->count);
 
     for(uint16_t function_count =0; function_count < fm->count; function_count++) {
-        printf("name: %s\n",fm->functions[function_count].name);
-        printf("available: %d\n",fm->functions[function_count].available);
-        printf("device descriptor %s\n",fm->functions[function_count].definition.description);
-        printf("device name %s\n",fm->functions[function_count].definition.name);
+        // printf("name: %s\n",fm->functions[function_count].name);
+        // printf("available: %d\n",fm->functions[function_count].available);
+        // printf("device descriptor %s\n",fm->functions[function_count].definition.description);
+
+        LOG_INFO("name: %s", fm->functions[function_count].name);
+        LOG_INFO("available: %d", fm->functions[function_count].available);
+        LOG_INFO("device descriptor %s", fm->functions[function_count].definition.description);
+        
+        // printf("device name %s\n",fm->functions[function_count].definition.name);
+        LOG_INFO("device name %s", fm->functions[function_count].definition.name);
         for(uint16_t device_count = 0; device_count < fm->functions[function_count].definition.count; device_count++) {
-            printf("device name %s\n",fm->functions[function_count].definition.device_name[device_count].name);
+            // printf("device name %s\n",fm->functions[function_count].definition.device_name[device_count].name);
+            LOG_INFO("device name %s", fm->functions[function_count].definition.device_name[device_count].name);
         }
     }
 

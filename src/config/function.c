@@ -17,26 +17,28 @@
 #define FUNCTION_JSON_KEY_DESC "description"
 #define FUNCTION_JSON_KEY_DEVICE_NAME "device-name"
 
+#define LOG_MODULE "FUNCTIONS"
+#include "logger.h"
 
 void function_print(function_config_t* cfg) {
 
     if (cfg == NULL)
         return;
     
-    printf("Schema Version: %d\n", cfg->schema_version);
+    LOG_INFO("Schema Version: %d", cfg->schema_version);
 
-    printf("Total Functions Loaded: %d\n", cfg->count);
-    printf("===============================\n");
+    LOG_INFO("Total Functions Loaded: %d", cfg->count);
+    LOG_INFO("===============================");
 
     for(uint32_t i = 0; i < cfg->count; i++) {
-        printf("Function Found:\n");
-        printf("  Name: %s\n", cfg->functions[i].name);
-        printf("  Description: %s\n", cfg->functions[i].description);
-        printf("  Device Names:\n");
+        LOG_INFO("Function Found:");
+        LOG_INFO("  Name: %s", cfg->functions[i].name);
+        LOG_INFO("  Description: %s", cfg->functions[i].description);
+        LOG_INFO("  Device Names:");
         for(uint32_t j = 0; j < cfg->functions[i].count; j++) {
-            printf("    - %s\n", cfg->functions[i].device_name[j].name);
+            LOG_INFO("    - %s", cfg->functions[i].device_name[j].name);
         }
-        printf("-------------------------------\n");
+        LOG_INFO("-------------------------------");
     }
     
 }
@@ -63,7 +65,7 @@ int32_t function_parser_load(const char* filename,function_config_t* cfg){
     if (root == NULL) {
         const char *error_ptr = cJSON_GetErrorPtr();
         if (error_ptr != NULL) {
-            printf("Error parsing JSON before: %s\n", error_ptr);
+            LOG_DEBUG("Error parsing JSON before: %s", error_ptr);
         }
         return -1;
     }
@@ -92,7 +94,7 @@ int32_t function_parser_load(const char* filename,function_config_t* cfg){
 
                 // Truncation detection metric
                 if (original_len >= sizeof(cfg->functions[cfg->count].name)) {
-                    printf("Warning: String was truncated! Original length was %zu bytes.\n", original_len);
+                    LOG_WARN("String was truncated! Original length was %zu bytes.", original_len);
                 }
             }
 
@@ -103,7 +105,7 @@ int32_t function_parser_load(const char* filename,function_config_t* cfg){
 
                 // Truncation detection metric
                 if (original_len >= sizeof(cfg->functions[cfg->count].description)) {
-                    printf("Warning: String was truncated! Original length was %zu bytes.\n", original_len);
+                    LOG_WARN("String was truncated! Original length was %zu bytes.", original_len);
                 }
             }
 

@@ -6,11 +6,15 @@
 
 #include "cJSON.h"
 
+
+
 #include "platform.h"
 #include "util.h"
 #include "safe_string.h"
 #include "parser.h"
 
+#define LOG_MODULE "PLATFORM_MANAGER"
+#include "logger.h"
 
 #define PLATFORM_JSON_SCHEMA_VERSION 1
 #define PLATFORM_JSON_KEY_SCHEMA_VERSION "schema_version"
@@ -94,47 +98,51 @@ void platform_print(platform_config_t* cfg) {
     if(cfg == NULL) {
         return;
     }
-    printf("Schema Version: %d\n", cfg->schema_version);
+    // printf("Schema Version: %d\n", cfg->schema_version);
+    LOG_INFO("Schema Version: %d", cfg->schema_version);
+    // printf("Platform Information\n");
+    LOG_INFO("Platform Information");
+    // printf("===============================\n");
+    LOG_INFO("===============================");
 
-    printf("Platform Information\n");
-    printf("===============================\n");
-
-    printf(" Name: %s\n",cfg->platform.name);
-    printf(" Vendor: %s\n",cfg->platform.vendor);
-    printf(" Soc: %s\n",cfg->platform.soc);
-    printf(" Description: %s\n",cfg->platform.description);
-    printf(" Device bind count: %d\n",cfg->binding_count);
+    // printf(" Name: %s\n",cfg->platform.name);
+    LOG_INFO(" Name: %s",cfg->platform.name);
+    // printf(" Vendor: %s\n",cfg->platform.vendor);
+    LOG_INFO(" Vendor: %s",cfg->platform.vendor);
+    LOG_INFO(" Soc: %s",cfg->platform.soc);
+    LOG_INFO(" Description: %s",cfg->platform.description);
+    LOG_INFO(" Device bind count: %d",cfg->binding_count);
 
     for(uint16_t index =0; index < cfg->binding_count; index++) {
 
-        printf("Device Info===============================\n");
-        printf("device: %s\n",cfg->bindings[index].device);
-        printf("plugin: %s\n",cfg->bindings[index].plugin);
-        printf("interface: %s\n",cfg->bindings[index].interface);
-        printf("compatible: %s\n",cfg->bindings[index].compatible);
+        LOG_INFO("Device Info===============================\n");
+        LOG_INFO("device: %s\n",cfg->bindings[index].device);
+        LOG_INFO("plugin: %s\n",cfg->bindings[index].plugin);
+        LOG_INFO("interface: %s\n",cfg->bindings[index].interface);
+        LOG_INFO("compatible: %s\n",cfg->bindings[index].compatible);
 
-        printf("device parameter count %d\n",cfg->bindings[index].configuration.parameter_count);
+        LOG_INFO("device parameter count %d\n",cfg->bindings[index].configuration.parameter_count);
 
         for(uint16_t para_count =0; para_count < cfg->bindings[index].configuration.parameter_count; para_count++) {
-            printf("Device Parameter info=======================\n");
-            printf("Device key: %s\n",cfg->bindings[index].configuration.parameters[para_count].key);
-            printf("Device type: %d\n",cfg->bindings[index].configuration.parameters[para_count].type);
+            LOG_INFO("Device Parameter info=======================\n");
+            LOG_INFO("Device key: %s\n",cfg->bindings[index].configuration.parameters[para_count].key);
+            LOG_INFO("Device type: %d\n",cfg->bindings[index].configuration.parameters[para_count].type);
             switch (cfg->bindings[index].configuration.parameters[para_count].type) {
             case CONFIG_VALUE_STRING:
-                printf("Device value: %s\n",
+                LOG_INFO("Device value: %s\n",
                     cfg->bindings[index].configuration.parameters[para_count].value.string_value);
                 break;
             case CONFIG_VALUE_INT:
-                printf("Device value: %d\n",
+                LOG_INFO("Device value: %d\n",
                     cfg->bindings[index].configuration.parameters[para_count].value.int_value);
                 break;
             case CONFIG_VALUE_DOUBLE:
-                printf("Device value: %lf\n",
+                LOG_INFO("Device value: %lf\n",
                     cfg->bindings[index].configuration.parameters[para_count].value.double_value);
                 break;
 
             case CONFIG_VALUE_BOOL:
-                printf("Device value: %d\n"
+                LOG_INFO("Device value: %d\n"
                     ,cfg->bindings[index].configuration.parameters[para_count].value.bool_value);
                 break;
             
@@ -165,7 +173,7 @@ int32_t platform_parser_load(const char* filename,platform_config_t* cfg){
     if (root == NULL) {
         const char *error_ptr = cJSON_GetErrorPtr();
         if (error_ptr != NULL) {
-            printf("Error parsing JSON before: %s\n", error_ptr);
+            LOG_DEBUG("Error parsing JSON before: %s", error_ptr);
         }
         return -1;
     }
@@ -209,7 +217,7 @@ int32_t platform_parser_load(const char* filename,platform_config_t* cfg){
                     get_i2c(config,cfg->binding_count,cfg);
                 }
                 else {
-                    printf("failed to match inteface %s\n",cfg->bindings->interface);
+                    LOG_DEBUG("failed to match inteface %s\n",cfg->bindings->interface);
                 }
             }
             cfg->binding_count++;

@@ -10,6 +10,8 @@
 #include "util.h"
 #include "safe_string.h"
 
+#define LOG_MODULE "TEST_MANAGER"
+#include "logger.h"
 
 #define TEST_JSON_SCHEMA_VERSION 1
 #define TEST_JSON_KEY_SCHEMA_VERSION "schema_version"
@@ -39,7 +41,8 @@ int32_t test_parser_load(const char* filename,test_config_t* cfg){
     if (root == NULL) {
         const char *error_ptr = cJSON_GetErrorPtr();
         if (error_ptr != NULL) {
-            printf("Error parsing JSON before: %s\n", error_ptr);
+            //printf("Error parsing JSON before: %s\n", error_ptr);
+            LOG_DEBUG("Error parsing JSON before: %s", error_ptr);
         }
         return -1;
     }
@@ -63,7 +66,8 @@ int32_t test_parser_load(const char* filename,test_config_t* cfg){
                 original_len = safe_string_copy(cfg->tests[cfg->count].name,
                      name->valuestring, sizeof(cfg->tests[cfg->count].name));
                 if (original_len >= sizeof(cfg->tests[cfg->count].name)) {
-                    printf("Warning: String was truncated! Original length was %zu bytes.\n", original_len);
+                    //printf("Warning: String was truncated! Original length was %zu bytes.\n", original_len);
+                    LOG_WARN("String was truncated! Original length was %zu bytes.", original_len);
                 }
             }
 
@@ -72,7 +76,8 @@ int32_t test_parser_load(const char* filename,test_config_t* cfg){
                 original_len = safe_string_copy(cfg->tests[cfg->count].description,
                      desc->valuestring, sizeof(cfg->tests[cfg->count].description));
                 if (original_len >= sizeof(cfg->tests[cfg->count].description)) {
-                    printf("Warning: String was truncated! Original length was %zu bytes.\n", original_len);
+                    //printf("Warning: String was truncated! Original length was %zu bytes.\n", original_len);
+                    LOG_WARN("String was truncated! Original length was %zu bytes.", original_len);
                 }
             }
 
@@ -81,7 +86,8 @@ int32_t test_parser_load(const char* filename,test_config_t* cfg){
                 original_len = safe_string_copy(cfg->tests[cfg->count].function,
                      func->valuestring, sizeof(cfg->tests[cfg->count].function));
                 if (original_len >= sizeof(cfg->tests[cfg->count].function)) {
-                    printf("Warning: String was truncated! Original length was %zu bytes.\n", original_len);
+                    //printf("Warning: String was truncated! Original length was %zu bytes.\n", original_len);
+                    LOG_WARN("String was truncated! Original length was %zu bytes.", original_len);
                 }
             }
             cfg->count++; // Increment the count of successfully parsed tests
@@ -96,14 +102,25 @@ void test_printf(test_config_t *cfg) {
     if(cfg == NULL)
         return;
     
-    printf("Schema Version: %d\n", cfg->schema_version);
-    printf("Total Tests Parsed: %d\n", cfg->count);
-    printf("===============================\n");
+    // printf("Schema Version: %d\n", cfg->schema_version);
+    // printf("Total Tests Parsed: %d\n", cfg->count);
+    // printf("===============================\n");
+
+    LOG_INFO("Schema Version: %d", cfg->schema_version);
+    LOG_INFO("Total Tests Parsed: %d", cfg->count);
+    LOG_INFO("===============================");
+
     for (uint32_t i = 0; i < cfg->count; i++) {
-        printf("Test %d:\n", i + 1);
-        printf("  Name: %s\n", cfg->tests[i].name);
-        printf("  Description: %s\n", cfg->tests[i].description);
-        printf("  Function: %s\n", cfg->tests[i].function);
-        printf("-------------------------------\n");
+        // printf("Test %d:\n", i + 1);
+        // printf("  Name: %s\n", cfg->tests[i].name);
+        // printf("  Description: %s\n", cfg->tests[i].description);
+        // printf("  Function: %s\n", cfg->tests[i].function);
+        // printf("-------------------------------\n");
+
+        LOG_INFO("Test %d:", i + 1);
+        LOG_INFO("  Name: %s", cfg->tests[i].name);
+        LOG_INFO("  Description: %s", cfg->tests[i].description);
+        LOG_INFO("  Function: %s", cfg->tests[i].function);
+        LOG_INFO("-------------------------------");
     }
 }

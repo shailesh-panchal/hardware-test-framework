@@ -10,6 +10,8 @@
 #include "util.h"
 #include "safe_string.h"
 
+#define LOG_MODULE "DEVICE_MANAGEMENT"
+#include "logger.h"
 
 #define DEVICE_JSON_SCHEMA_VERSION 1
 #define DEVICE_JSON_KEY_SCHEMA_VERSION "schema_version"
@@ -78,7 +80,7 @@ int32_t device_parser_load(const char* filename,device_config_t* cfg){
     if (root == NULL) {
         const char *error_ptr = cJSON_GetErrorPtr();
         if (error_ptr != NULL) {
-            printf("Error parsing JSON before: %s\n", error_ptr);
+            LOG_DEBUG("Error parsing JSON before: %s\n", error_ptr);
         }
         return -1;
     }
@@ -106,7 +108,7 @@ int32_t device_parser_load(const char* filename,device_config_t* cfg){
 
                 // Truncation detection metric
                 if (original_len >= sizeof(cfg->devices[cfg->count].id)) {
-                    printf("Warning: String was truncated! Original length was %zu bytes.\n", original_len);
+                    LOG_WARN("String was truncated! Original length was %zu bytes.\n", original_len);
                 }
             }
 
@@ -115,7 +117,7 @@ int32_t device_parser_load(const char* filename,device_config_t* cfg){
                 original_len = safe_string_copy(cfg->devices[cfg->count].name,
                      name->valuestring, sizeof(cfg->devices[cfg->count].name));
                 if (original_len >= sizeof(cfg->devices[cfg->count].name)) {
-                    printf("Warning: String was truncated! Original length was %zu bytes.\n", original_len);
+                    LOG_WARN("String was truncated! Original length was %zu bytes.\n", original_len);
                 }
             }
 
@@ -129,7 +131,7 @@ int32_t device_parser_load(const char* filename,device_config_t* cfg){
                 original_len = safe_string_copy(cfg->devices[cfg->count].description, 
                     desc->valuestring, sizeof(cfg->devices[cfg->count].description));
                 if (original_len >= sizeof(cfg->devices[cfg->count].description)) {
-                    printf("Warning: String was truncated! Original length was %zu bytes.\n", original_len);
+                    LOG_WARN("String was truncated! Original length was %zu bytes.\n", original_len);
                 }
             }
             cfg->count++;
@@ -144,15 +146,15 @@ void device_printf(device_config_t *cfg) {
     if(cfg == NULL)
         return;
 
-    printf("Schema Version: %d\n", cfg->schema_version);
-    printf("Total devices parsed: %d\n", cfg->count);
-    printf("===============================\n");
+    LOG_INFO("Schema Version: %d\n", cfg->schema_version);
+    LOG_INFO("Total devices parsed: %d\n", cfg->count);
+    LOG_INFO("================================\n");
     for(uint32_t i = 0; i < cfg->count; i++) {
-        printf("Device %d:\n", i + 1);
-        printf("  ID: %s\n", cfg->devices[i].id);
-        printf("  Name: %s\n", cfg->devices[i].name);
-        printf("  Type: %s\n", device_type_to_string(cfg->devices[i].type));
-        printf("  Description: %s\n", cfg->devices[i].description);
-        printf("-------------------------------\n");
+        LOG_INFO("Device %d:\n", i + 1);
+        LOG_INFO("  ID: %s\n", cfg->devices[i].id);
+        LOG_INFO("  Name: %s\n", cfg->devices[i].name);
+        LOG_INFO("  Type: %s\n", device_type_to_string(cfg->devices[i].type));
+        LOG_INFO("  Description: %s\n", cfg->devices[i].description);
+        LOG_INFO("-------------------------------\n");
     }
 }

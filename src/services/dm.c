@@ -10,6 +10,8 @@
 #include "dm.h"
 #include "safe_string.h"
 
+#define LOG_MODULE "DEVICE_MANAGER"
+#include "logger.h"
 
 #define DEVICE_MANAGER_MAX_DEVICES    128
 
@@ -30,29 +32,34 @@ static int32_t prepare_device_info(device_manager_t* dm, config_manager_t* confi
     device_def_t device_configuration = {0};
 
     if(0 != config_manager_get_platform_device_count(config_manager, &device_binding_count)) {
-        printf("failed to get the platform device count \n");
+        // printf("failed to get the platform device count \n");
+        LOG_ERROR("failed to get the platform device count");
         return -1;
     }
 
     if(device_binding_count == 0) {
-        printf("platform do not contain any device\n");
+        // printf("platform do not contain any device\n");
+        LOG_ERROR("platform do not contain any device");
         return -1;
     }
 
     if(0 != config_manager_get_device_count(config_manager, &device_count)) {
-        printf("failed to get the device count \n");
+        // printf("failed to get the device count \n");
+        LOG_ERROR("failed to get the device count");
         return -1;
     }
 
     for(uint32_t index=0; index < device_binding_count; index++) {
         if(0 != config_manager_get_platform_device_by_index(config_manager, index, &device_binding)) {
-            printf("failed to get the platform device information for index %d\n",index);
+            // printf("failed to get the platform device information for index %d\n",index);
+            LOG_DEBUG("failed to get the platform device information for index %d", index);
             continue;
         }
 
         for(uint32_t device_index=0; device_index < device_count; device_index++) {
             if(0 != config_manager_get_device_by_index(config_manager, device_index, &device_configuration)) {
-                printf("failed to get the device information for device_index %d\n",device_index);
+                // printf("failed to get the device information for device_index %d\n",device_index);
+                LOG_DEBUG("failed to get the device information for device_index %d", device_index);
                 continue;
             }
 
