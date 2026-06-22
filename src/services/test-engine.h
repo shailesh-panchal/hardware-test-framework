@@ -170,14 +170,7 @@ typedef struct
  *
  * @return Test execution status.
  */
-typedef int32_t (*test_callback_t)
-(
-    test_context_t *context
-);
-
-
-
-
+typedef int32_t (*test_callback_t)(test_context_t *context);
 
 /**
  * @brief Test lifecycle operations.
@@ -194,32 +187,21 @@ typedef int32_t (*test_callback_t)
  */
 typedef struct
 {
-
     /**
      * Prepare hardware and resources.
      */
     test_callback_t setup;
-
 
     /**
      * Execute validation logic.
      */
     test_callback_t execute;
 
-
     /**
      * Release resources.
      */
     test_callback_t cleanup;
-
-
 } test_operations_t;
-
-
-
-
-
-
 /**
  * @brief Registered test entry.
  *
@@ -227,25 +209,20 @@ typedef struct
  */
 typedef struct
 {
-
     /**
      * Test name.
      */
     char name[TEST_NAME_LENGTH];
-
 
     /**
      * Test lifecycle callbacks.
      */
     test_operations_t operations;
 
-
     /**
      * Maximum allowed execution time.
      */
     uint32_t timeout_ms;
-
-
 } test_entry_t;
 
 

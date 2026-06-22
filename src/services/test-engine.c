@@ -259,7 +259,7 @@ test_engine_t* test_engine_init(test_manager_t *test_manager,function_manager_t 
         return NULL;
     }
 
-    test_engine = malloc(sizeof(test_engine_t));
+    test_engine = (test_engine_t *) malloc(sizeof(test_engine_t));
     if(test_engine == NULL) {
         return NULL;
     }
