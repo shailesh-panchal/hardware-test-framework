@@ -2,10 +2,36 @@
 #define LOGGER_H
 
 #include <stdint.h>
-
+#include <pthread.h>
 #include <stdarg.h>
 #include <stdio.h>
 
+
+#ifndef LOG_MODULE
+#define LOG_MODULE "UNKNOWN"
+#endif
+
+#define LOGGER_MAX_QUEUE_SIZE 128
+#define LOGGER_MAX_MESSAGE_SIZE 1024
+#define LOGGER_TIMESTAMP_SIZE 32
+typedef struct
+{
+    char message[LOGGER_MAX_MESSAGE_SIZE];
+} LoggerMessage_t;
+
+static LoggerMessage_t g_queue[LOGGER_MAX_QUEUE_SIZE];
+
+static uint32_t g_head = 0;
+static uint32_t g_tail = 0;
+static uint32_t g_count = 0;
+
+static pthread_mutex_t g_queueMutex;
+static pthread_cond_t  g_queueCond;
+
+static pthread_t g_loggerThread;
+
+static volatile int g_running = 1;
+void logger_deinit(void);
 typedef enum
 {
     LOG_LEVEL_TRACE = 0x01,
@@ -47,5 +73,9 @@ void logger_log(
     const char* module,
     const char* fmt,
     ...);
+
+void logger_get_timestamp(
+    char *buffer,
+    size_t size);
 
 #endif

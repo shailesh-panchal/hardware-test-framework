@@ -2,7 +2,8 @@
 #include <assert.h>
 #include "../common/logger.h"
 #include <string.h>
-
+#include <unistd.h>
+#undef LOG_MODULE
 #define LOG_MODULE "DEVICE_MANAGER"
 
 static LogLevel_e parse_log_level(
@@ -26,7 +27,10 @@ static LogLevel_e parse_log_level(
     if(strcmp(levelStr, "fatal") == 0)
         return LOG_LEVEL_FATAL;
 
-    return LOG_LEVEL_INFO;
+    if(strcmp(levelStr, "all") == 0)
+        return LOG_LEVEL_ALL;
+
+    return LOG_LEVEL_ERROR;
 }
 
 int main(int argc, char *argv[])
@@ -51,29 +55,12 @@ int main(int argc, char *argv[])
     }
 
     
-
     //Test 3: INFO Filtering\
     logger_set_level(LOG_LEVEL_INFO);
+    for(int i = 0; i < 10; i++)
+    {
+        LOG_INFO("Message %d", i);
+    }
 
-    LOG_DEBUG("debug message");
-
-    LOG_INFO("info message");
-
-    LOG_DEBUG("debug message");
-
-    LOG_INFO("info message");
-
-    LOG_TRACE("trace");
-    
-    LOG_DEBUG("debug");
-    
-    LOG_INFO("info");
-    
-    LOG_WARN("warn");
-    
-    LOG_ERROR("error");
-    
-    LOG_FATAL("fatal");
-
-    LOG_INFO("device initialized");
+    logger_deinit();
 }

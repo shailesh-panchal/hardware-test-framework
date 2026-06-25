@@ -6,6 +6,7 @@
 
 #include "util.h"
 
+#undef LOG_MODULE
 #define LOG_MODULE "UTILS_MANAGER"
 #include "logger.h"
 

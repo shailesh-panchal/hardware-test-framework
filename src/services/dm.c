@@ -10,6 +10,7 @@
 #include "dm.h"
 #include "safe_string.h"
 
+#undef LOG_MODULE
 #define LOG_MODULE "DEVICE_MANAGER"
 #include "logger.h"
 

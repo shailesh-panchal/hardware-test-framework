@@ -17,7 +17,8 @@
 #define FUNCTION_JSON_KEY_DESC "description"
 #define FUNCTION_JSON_KEY_DEVICE_NAME "device-name"
 
-#define LOG_MODULE "FUNCTIONS"
+#undef LOG_MODULE
+#define LOG_MODULE "FUNCTIONS_CONFIG"
 #include "logger.h"
 
 void function_print(function_config_t* cfg) {

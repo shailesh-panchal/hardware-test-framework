@@ -13,6 +13,7 @@
 #include "safe_string.h"
 #include "parser.h"
 
+#undef LOG_MODULE
 #define LOG_MODULE "PLATFORM_MANAGER"
 #include "logger.h"
 

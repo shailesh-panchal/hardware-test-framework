@@ -10,6 +10,7 @@
 #include "util.h"
 #include "safe_string.h"
 
+#undef LOG_MODULE
 #define LOG_MODULE "TEST_MANAGER"
 #include "logger.h"
 

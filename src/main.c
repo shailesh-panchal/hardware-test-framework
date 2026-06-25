@@ -8,6 +8,7 @@
 #include "config-manager.h"
 #include "function-manager.h"
 
+#undef LOG_MODULE
 #define LOG_MODULE "main"
 #include "logger.h"
 
@@ -127,5 +128,6 @@ int32_t main(int argc, char *argv[]) {
     device_manager_deinit(device_manager);
     config_manager_deinit(config_manager);
     function_manager_deinit(function_manager);
+    logger_deinit();
     return EXIT_SUCCESS;
 }
