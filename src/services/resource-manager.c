@@ -117,7 +117,7 @@ int32_t resource_manager_register(resource_manager_t *manager, const char *name)
     if(manager->resource_count >= RESOURCE_MANAGER_MAX_RESOURCES) {
 
         pthread_mutex_unlock(&manager->lock);
-        return -2;
+        return -1;
     }
     /*
      * Check duplicate resource

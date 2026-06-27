@@ -249,11 +249,14 @@ static void* test_engine_worker( void *arg) {
         memset(&function,0, sizeof(function));
 
         //get the function information for the test
-        test_manager_get_function_name(test_engine->test_manager,(const char *)instance->entry->name,function);
+        if(0 != test_manager_get_function_name(test_engine->test_manager,(const char *)instance->entry->name,function)) {
+            continue;
+        }
 
         //aquire resource
         resource_manager_acquire(test_engine->resource_manager,(const char *)function,instance);
 
+        //run the test instance
         test_engine_run_instance(instance);
 
         //release resource after execution 
@@ -273,6 +276,28 @@ static void* test_engine_worker( void *arg) {
         }
     }
     return NULL;
+}
+
+static void register_device_with_resource_manager(test_engine_t *test_engine,device_manager_t *device_manager) {
+    if(test_engine == NULL ||device_manager == NULL) {
+        return;
+    }
+
+    uint32_t device_count = 0;
+
+    Device_t device = {0};
+
+    if(0 != device_manager_get_count(device_manager,&device_count)) {
+        return;
+    }
+
+    for(uint32_t index = 0; index < device_count; index++) {
+        if(0 != device_manager_get_device_by_index(device_manager,index ,&device)) {
+            break;
+        }
+
+        resource_manager_register(test_engine->resource_manager, device.name);
+    }
 }
 
 test_engine_t* test_engine_init(test_manager_t *test_manager,function_manager_t *function_manager,device_manager_t *device_manager) {
@@ -322,6 +347,9 @@ test_engine_t* test_engine_init(test_manager_t *test_manager,function_manager_t 
         return NULL;
     }
 
+    // let register the device with resource manager
+    register_device_with_resource_manager(test_engine,device_manager);
+
     //init the test scheduler 
     test_engine->scheduler  = test_scheduler_init(test_engine, test_engine->resource_manager,TEST_ENGINE_MAX_WORKERS);
     if(test_engine->scheduler == NULL) {
@@ -330,7 +358,6 @@ test_engine_t* test_engine_init(test_manager_t *test_manager,function_manager_t 
     }
     uint32_t index =0;
     for(index = 0; index < test_engine->worker_count; index++) {
-
         if(pthread_create( &test_engine->workers[index], NULL, test_engine_worker,test_engine) != 0) {
 
             pthread_cond_broadcast( &test_engine->queue_condition);
