@@ -225,11 +225,6 @@ typedef struct
     uint32_t timeout_ms;
 } test_entry_t;
 
-
-
-
-
-
 /**
  * @brief Runtime test execution instance.
  *
@@ -267,13 +262,7 @@ typedef struct
      */
     bool running;
 
-
 } test_instance_t;
-
-
-
-
-
 
 /**
  * @brief Test Engine runtime object.
@@ -372,5 +361,22 @@ int32_t test_engine_get_result(
     test_engine_t *test_engine,
     const char *name,
     test_result_t *result);
+
+/**
+ * @brief Get test manager instance.
+ *
+ * Returns the resource manager owned by
+ * the test engine.
+ *
+ * @param[in] test_engine
+ *        Test Engine instance.
+ *
+ * @return test Manager pointer.
+ *
+ * @retval NULL
+ *         Invalid engine instance.
+ */
+test_manager_t* test_engine_get_test_manager(
+        test_engine_t *test_engine);
 
 #endif /* TEST_ENGINE_H */

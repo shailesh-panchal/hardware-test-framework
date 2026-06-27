@@ -24,7 +24,7 @@ static int32_t test_scheduler_remove_pending(test_scheduler_t *scheduler, uint32
     return 0;
 }
 
-test_scheduler_t* test_scheduler_init(test_engine_t *test_engine, uint32_t max_instances){
+test_scheduler_t* test_scheduler_init(test_engine_t *test_engine, resource_manager_t *resource_manager, uint32_t max_instances){
 
     test_scheduler_t *scheduler = NULL;
 
@@ -41,6 +41,8 @@ test_scheduler_t* test_scheduler_init(test_engine_t *test_engine, uint32_t max_i
     }
 
     scheduler->test_engine = test_engine;
+
+    scheduler->resource_manager = resource_manager;
 
     scheduler->max_instances = max_instances;
     scheduler->running_instances = 0;
@@ -68,6 +70,24 @@ int32_t test_scheduler_check_resource(test_scheduler_t *scheduler, test_instance
     if(scheduler == NULL || instance == NULL)    {
         return -1;
     }
+
+    if(scheduler->resource_manager == NULL) {
+        return -1;
+    }
+    /*
+     * Resource Manager decides
+     * resource availability
+     */
+
+    //get the function information for the test
+    char function[FUNCTION_NAME_LENGTH] = {0};
+    test_manager_t *test_manager = test_engine_get_test_manager(scheduler->test_engine);
+    test_manager_get_function_name(test_manager,(const char *)instance->entry->name,function);
+
+    if(resource_manager_is_available(scheduler->resource_manager,(const char *)function) == false) {
+        return -1;
+    }
+
     return 0;
 }
 

@@ -20,6 +20,7 @@
 #include <stdbool.h>
 
 #include "test-engine.h"
+#include "resource-manager.h"
 
 /**
  * @brief Test scheduler state.
@@ -51,6 +52,11 @@ typedef struct test_scheduler_t {
      * to create execution threads.
      */
     test_engine_t *test_engine;
+
+    /*
+     * Resource ownership manager
+     */
+    resource_manager_t *resource_manager;
 
     /**
      * Maximum number of parallel tests.
@@ -93,6 +99,7 @@ typedef struct test_scheduler_t {
  */
 test_scheduler_t* test_scheduler_init(
         test_engine_t *test_engine,
+        resource_manager_t *resource_manager,
         uint32_t max_instances);
 
 /**

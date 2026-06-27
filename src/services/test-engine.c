@@ -10,8 +10,10 @@
 
 #include "test-engine.h"
 #include "test-scheduler.h"
+#include "resource-manager.h"
 #include "safe_string.h"
 #include "util.h"
+#include "function.h"
 
 struct test_engine_t
 {
@@ -22,7 +24,16 @@ struct test_engine_t
      */
     test_manager_t *test_manager;
 
+     /*
+     * Scheduler
+     */
     test_scheduler_t *scheduler;
+
+    /*
+     * Resource ownership manager
+     */
+    resource_manager_t *resource_manager;
+
 
     /**
      * Worker thread pool.
@@ -225,6 +236,7 @@ static void* test_engine_worker( void *arg) {
     }
 
     test_engine = (test_engine_t *)arg;
+    char function[FUNCTION_NAME_LENGTH] = {0};
 
     while(test_engine->running)
     {
@@ -234,7 +246,18 @@ static void* test_engine_worker( void *arg) {
             continue;
         }
 
+        memset(&function,0, sizeof(function));
+
+        //get the function information for the test
+        test_manager_get_function_name(test_engine->test_manager,(const char *)instance->entry->name,function);
+
+        //aquire resource
+        resource_manager_acquire(test_engine->resource_manager,(const char *)function,instance);
+
         test_engine_run_instance(instance);
+
+        //release resource after execution 
+        resource_manager_release(test_engine->resource_manager,(const char *)function,instance);
 
         if(test_engine->scheduler != NULL) {
             test_schedule_result_e schedule_result = test_scheduler_get_next_instance(test_engine->scheduler,&instance);
@@ -292,14 +315,21 @@ test_engine_t* test_engine_init(test_manager_t *test_manager,function_manager_t 
 
     test_engine->worker_count = TEST_ENGINE_MAX_WORKERS;
 
-    //init the test scheduler 
-    test_engine->scheduler  = test_scheduler_init(test_engine, TEST_ENGINE_MAX_WORKERS);
-    if(test_engine->scheduler == NULL) {
+    test_engine->resource_manager =  resource_manager_init(function_manager);
+
+    if(test_engine->resource_manager == NULL) {
         free(test_engine);
         return NULL;
     }
 
-    for(uint32_t index = 0; index < test_engine->worker_count; index++) {
+    //init the test scheduler 
+    test_engine->scheduler  = test_scheduler_init(test_engine, test_engine->resource_manager,TEST_ENGINE_MAX_WORKERS);
+    if(test_engine->scheduler == NULL) {
+        free(test_engine);
+        return NULL;
+    }
+    uint32_t index =0;
+    for(index = 0; index < test_engine->worker_count; index++) {
 
         if(pthread_create( &test_engine->workers[index], NULL, test_engine_worker,test_engine) != 0) {
 
@@ -307,6 +337,9 @@ test_engine_t* test_engine_init(test_manager_t *test_manager,function_manager_t 
             for(uint32_t i = 0; i < index; i++) {
                 pthread_join(test_engine->workers[i], NULL);
             }
+
+            test_scheduler_deinit(test_engine->scheduler);
+
             pthread_mutex_destroy(&test_engine->queue_lock);
 
             pthread_cond_destroy(&test_engine->queue_condition);
@@ -315,7 +348,6 @@ test_engine_t* test_engine_init(test_manager_t *test_manager,function_manager_t 
             return NULL;
         }
     } 
-
     test_engine->running = true;
     return test_engine;
 }
@@ -342,6 +374,9 @@ int32_t test_engine_deinit(test_engine_t *test_engine) {
 
     if(test_engine->scheduler) {
         test_scheduler_deinit(test_engine->scheduler);
+    }
+    if(test_engine->resource_manager) {
+        resource_manager_deinit(test_engine->resource_manager);    
     }
 
     free(test_engine);
@@ -456,4 +491,12 @@ int32_t test_engine_get_result(test_engine_t *test_engine, const char *name, tes
         }
     }
     return -1;
+}
+
+test_manager_t* test_engine_get_test_manager(test_engine_t *test_engine) {
+    if(test_engine == NULL) {
+        return NULL;
+    }
+
+    return test_engine->test_manager;
 }

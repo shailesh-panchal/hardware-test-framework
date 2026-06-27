@@ -170,7 +170,7 @@ int32_t function_manager_get_device_count(function_manager_t* fm, const char* na
     return 0;
 }
 
-int32_t function_manager_get_device_by_index(function_manager_t* fm, char *name,uint32_t device_index, device_name_t* device_name){
+int32_t function_manager_get_device_by_index(function_manager_t* fm, const char *name,uint32_t device_index, device_name_t* device_name){
     if((fm == NULL) || (device_name == NULL) || (name == NULL))
         return -1;
 
