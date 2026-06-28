@@ -5,6 +5,7 @@
 #include <pthread.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 
 #ifndef LOG_MODULE
@@ -19,19 +20,6 @@ typedef struct
     char message[LOGGER_MAX_MESSAGE_SIZE];
 } LoggerMessage_t;
 
-static LoggerMessage_t g_queue[LOGGER_MAX_QUEUE_SIZE];
-
-static uint32_t g_head = 0;
-static uint32_t g_tail = 0;
-static uint32_t g_count = 0;
-
-static pthread_mutex_t g_queueMutex;
-static pthread_cond_t  g_queueCond;
-
-static pthread_t g_loggerThread;
-
-static volatile int g_running = 1;
-void logger_deinit(void);
 typedef enum
 {
     LOG_LEVEL_TRACE = 0x01,
@@ -42,6 +30,34 @@ typedef enum
     LOG_LEVEL_FATAL = 0x20,
     LOG_LEVEL_ALL = 0x3F,
 } LogLevel_e;
+
+typedef struct
+{
+    uint32_t head;
+    uint32_t tail;
+    uint32_t count;
+} CircularFifo_t;
+
+typedef struct
+{
+    LogLevel_e logLevel;
+
+    CircularFifo_t fifo;
+
+    LoggerMessage_t queue[LOGGER_MAX_QUEUE_SIZE];
+
+    pthread_mutex_t queueLock;
+    pthread_cond_t queueCond;
+
+    pthread_t workerThread;
+
+    bool running;
+
+} LoggerContext_t;  
+
+
+void logger_deinit(void);
+
 
 int32_t logger_init(void);
 

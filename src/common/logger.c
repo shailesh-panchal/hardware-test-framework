@@ -3,7 +3,7 @@
 #include <stdarg.h>
 #include <time.h>
 
-static LogLevel_e g_logLevel = LOG_LEVEL_INFO;
+static LoggerContext_t g_logger;
 
 static void* logger_worker(void* arg);
 static int dequeue(LoggerMessage_t *msg);
@@ -11,30 +11,34 @@ static int enqueue(const char *msg);
 int32_t logger_init(void)
 {
     pthread_mutex_init(
-        &g_queueMutex,
+        &g_logger.queueLock,
         NULL);
 
     pthread_cond_init(
-        &g_queueCond,
+        &g_logger.queueCond,
         NULL);
 
-    pthread_create(
-        &g_loggerThread,
+    int ret = pthread_create(
+        &g_logger.workerThread,
         NULL,
         logger_worker,
         NULL);
-
-    g_logLevel = LOG_LEVEL_ERROR;
+        
+    g_logger.logLevel = LOG_LEVEL_ERROR;
+    g_logger.running = true;
+    g_logger.fifo.head = 0;
+    g_logger.fifo.tail = 0;
+    g_logger.fifo.count = 0;
     return 0;
 }
 
-void logger_set_level(LogLevel_e level){ g_logLevel = level; }
+void logger_set_level(LogLevel_e level){ g_logger.logLevel = level; }
 
-LogLevel_e logger_get_level(void){ return g_logLevel; }
+LogLevel_e logger_get_level(void){ return g_logger.logLevel; }
 
 char* logger_get_level_string(void)
 {
-    switch (g_logLevel)
+    switch (g_logger.logLevel)
     {
         case LOG_LEVEL_TRACE: return "TRACE";
         case LOG_LEVEL_DEBUG: return "DEBUG";
@@ -85,52 +89,53 @@ void logger_get_timestamp(char *buffer, size_t size)
 
 static int enqueue(const char *msg)
 {
-    pthread_mutex_lock(&g_queueMutex);
     
-    if (g_count >= LOGGER_MAX_QUEUE_SIZE)
+    pthread_mutex_lock(&g_logger.queueLock);
+    
+    if (g_logger.fifo.count >= LOGGER_MAX_QUEUE_SIZE)
     {
-        pthread_mutex_unlock(&g_queueMutex);
+        pthread_mutex_unlock(&g_logger.queueLock);
         return -1;
     }
 
     snprintf(
-        g_queue[g_tail].message,
+        g_logger.queue[g_logger.fifo.tail].message,
         LOGGER_MAX_MESSAGE_SIZE,
         "%s",
         msg);
 
-    g_tail = (g_tail + 1) % LOGGER_MAX_QUEUE_SIZE;
-    g_count++;
+    g_logger.fifo.tail = (g_logger.fifo.tail + 1) % LOGGER_MAX_QUEUE_SIZE;
+    g_logger.fifo.count++;
     
-    pthread_cond_signal(&g_queueCond);
-    pthread_mutex_unlock(&g_queueMutex);
+    pthread_cond_signal(&g_logger.queueCond);
+    pthread_mutex_unlock(&g_logger.queueLock);
 
     return 0;
 }
 
 static int dequeue(LoggerMessage_t *msg)
 {
-
-    pthread_mutex_lock(&g_queueMutex);
     
-    while (g_count == 0 && g_running)
+    pthread_mutex_lock(&g_logger.queueLock);
+    
+    while (g_logger.fifo.count == 0 && g_logger.running)
     {
         pthread_cond_wait(
-            &g_queueCond,
-            &g_queueMutex);
+            &g_logger.queueCond,
+            &g_logger.queueLock);
     }
 
-    if (g_count == 0 && !g_running)
+    if (g_logger.fifo.count == 0 && !g_logger.running)
     {
-        pthread_mutex_unlock(&g_queueMutex);
+        pthread_mutex_unlock(&g_logger.queueLock);
         return -1;
     }
 
-    *msg = g_queue[g_head];
-    g_head = (g_head + 1) % LOGGER_MAX_QUEUE_SIZE;
-    g_count--;
-
-    pthread_mutex_unlock(&g_queueMutex);
+    *msg = g_logger.queue[g_logger.fifo.head];
+    g_logger.fifo.head = (g_logger.fifo.head + 1) % LOGGER_MAX_QUEUE_SIZE;
+    g_logger.fifo.count--;
+    
+    pthread_mutex_unlock(&g_logger.queueLock);
 
     return 0;
 }
@@ -138,8 +143,7 @@ static int dequeue(LoggerMessage_t *msg)
 static void* logger_worker(void* arg)
 {
     (void)arg;
-
-    while (g_running || g_count > 0)
+    while (g_logger.running || g_logger.fifo.count > 0)
     {
         LoggerMessage_t msg;
         dequeue(&msg);
@@ -152,22 +156,22 @@ static void* logger_worker(void* arg)
 
 void logger_deinit(void)
 {
-    pthread_mutex_lock(&g_queueMutex);
+    pthread_mutex_lock(&g_logger.queueLock);
 
-    g_running = 0;
+    g_logger.running = 0;
 
-    pthread_cond_signal(&g_queueCond);
+    pthread_cond_signal(&g_logger.queueCond);
 
-    pthread_mutex_unlock(&g_queueMutex);
+    pthread_mutex_unlock(&g_logger.queueLock);
 
     pthread_join(
-        g_loggerThread,
+        g_logger.workerThread,
         NULL);
 }
 
 void logger_log(LogLevel_e level,const char* module,const char* fmt,...)
 {
-    if(!(level & g_logLevel))
+    if(!(level & g_logger.logLevel))
     {
         return;
     }
