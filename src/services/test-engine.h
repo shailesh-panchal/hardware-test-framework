@@ -55,6 +55,7 @@
 #include "test-manager.h"
 #include "function-manager.h"
 #include "dm.h"
+#include "test-operation.h"
 
 #define MAX_TEST_INSTANCES 128
 
@@ -171,7 +172,7 @@ typedef struct
  * @return Test execution status.
  */
 typedef int32_t (*test_callback_t)(test_context_t *context);
-
+#if 0
 /**
  * @brief Test lifecycle operations.
  *
@@ -202,6 +203,8 @@ typedef struct
      */
     test_callback_t cleanup;
 } test_operations_t;
+#endif
+
 /**
  * @brief Registered test entry.
  *

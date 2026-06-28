@@ -127,7 +127,7 @@ int32_t function_manager_get_function(function_manager_t* fm, const char* name, 
     for (uint32_t index =0; index < fm->count; index++){
         if(safe_string_compare(name,fm->functions[index].name)) {
             memcpy(function, &fm->functions[index],sizeof(function_def_t));
-            return 1;
+            return 0;
         }
     }
     return -1;

@@ -49,6 +49,7 @@
 #include "dm.h"
 #include "function-manager.h"
 #include "test-manager.h"
+#include "test-engine.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -137,6 +138,16 @@ function_manager_t* runtime_manager_get_function_manager(
  * @return Pointer to the Test Manager.
  */
 test_manager_t* runtime_manager_get_test_manager(
+    runtime_manager_t *runtime);
+
+/**
+ * @brief Get the Test Engine instance.
+ *
+ * @param[in] runtime Pointer to the Runtime Manager instance.
+ *
+ * @return Pointer to the Test Engine instance.
+ */
+test_engine_t* runtime_manager_get_test_engine(
     runtime_manager_t *runtime);
 
 #ifdef __cplusplus

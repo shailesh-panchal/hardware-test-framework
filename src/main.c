@@ -21,9 +21,7 @@ int32_t main(int argc, char *argv[]) {
     safe_string_copy(config_path, argv[1], sizeof(config_path));
 
     runtime = runtime_manager_init(config_path);
-
-
-    if(runtime == NULL) {
+    if(NULL == runtime) {
         return EXIT_FAILURE;
     }
 
