@@ -1,15 +1,10 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include <assert.h>
+#include "../common/logger.h"
 #include <string.h>
-#include <stdbool.h>
-#include <stdint.h>
-
-#include "runtime.h"
-#include "safe_string.h"
-
+#include <unistd.h>
 #undef LOG_MODULE
-#define LOG_MODULE "main"
-#include "logger.h"
+#define LOG_MODULE "DEVICE_MANAGER"
 
 static LogLevel_e parse_log_level(
     const char *levelStr)
@@ -32,18 +27,24 @@ static LogLevel_e parse_log_level(
     if(strcmp(levelStr, "fatal") == 0)
         return LOG_LEVEL_FATAL;
 
-    return LOG_LEVEL_INFO;
+    if(strcmp(levelStr, "all") == 0)
+        return LOG_LEVEL_ALL;
+
+    return LOG_LEVEL_ERROR;
 }
 
-int32_t main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
+    
+    
+    int32_t ret = logger_init();
 
-    logger_init();
 
     for(int i = 1; i < argc; i++)
     {
         if(strcmp(argv[i], "--log-level") == 0)
         {
-            int32_t ret = 0;
+            ret = 0;
             while((i + 1) < argc)
             {
                 ret |= parse_log_level(argv[i + 1]);
@@ -53,22 +54,13 @@ int32_t main(int argc, char *argv[]) {
         }
     }
 
-    if(argc != 2) {
-        LOG_ERROR("Usage: %s <config_path>",argv[0]);
-        return EXIT_FAILURE;
+    
+    //Test 3: INFO Filtering\
+    logger_set_level(LOG_LEVEL_INFO);
+    for(int i = 0; i < 10; i++)
+    {
+        LOG_INFO("Message %d", i);
     }
 
-    runtime_manager_t *runtime = NULL;
-    char config_path[255] = {0};
-
-    safe_string_copy(config_path, argv[1], sizeof(config_path));
-
-
-    runtime = runtime_manager_init(config_path);
-    if(NULL == runtime) {
-        return EXIT_FAILURE;
-    }
-
-    runtime_manager_deinit(runtime);
-    return EXIT_SUCCESS;
+    logger_deinit();
 }

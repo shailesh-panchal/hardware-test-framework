@@ -72,3 +72,7 @@ file(GLOB_RECURSE APP_SOURCES
 add_executable(validator
     ${APP_SOURCES}
 )
+
+include_directories(
+    ${CMAKE_SOURCE_DIR}/src/common
+)
