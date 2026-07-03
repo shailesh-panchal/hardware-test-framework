@@ -9,9 +9,6 @@
 #include "device.h"
 #include "util.h"
 #include "safe_string.h"
-
-#undef LOG_MODULE
-#define LOG_MODULE "DEVICE_MANAGEMENT"
 #include "logger.h"
 
 #define DEVICE_JSON_SCHEMA_VERSION 1

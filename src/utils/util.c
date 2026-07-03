@@ -6,9 +6,6 @@
 #include <time.h>
 
 #include "util.h"
-
-#undef LOG_MODULE
-#define LOG_MODULE "UTILS_MANAGER"
 #include "logger.h"
 
 // Helper function to read the entire file into a dynamically allocated string

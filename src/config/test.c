@@ -9,9 +9,6 @@
 #include "test.h"
 #include "util.h"
 #include "safe_string.h"
-
-#undef LOG_MODULE
-#define LOG_MODULE "TEST_MANAGER"
 #include "logger.h"
 
 #define TEST_JSON_SCHEMA_VERSION 1

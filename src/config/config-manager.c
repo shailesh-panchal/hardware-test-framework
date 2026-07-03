@@ -10,9 +10,6 @@
 #include "function.h"
 #include "test.h"
 #include "safe_string.h"
-
-#undef LOG_MODULE
-#define LOG_MODULE "CONFIG_MANAGER"
 #include "logger.h"
 
 struct config_manager_t{

@@ -9,9 +9,6 @@
 
 #include "dm.h"
 #include "safe_string.h"
-
-#undef LOG_MODULE
-#define LOG_MODULE "DEVICE_MANAGER"
 #include "logger.h"
 
 #define DEVICE_MANAGER_MAX_DEVICES    128

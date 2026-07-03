@@ -3,8 +3,6 @@
 #include "../common/logger.h"
 #include <string.h>
 #include <unistd.h>
-#undef LOG_MODULE
-#define LOG_MODULE "DEVICE_MANAGER"
 
 static LogLevel_e parse_log_level(
     const char *levelStr)

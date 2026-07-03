@@ -9,8 +9,6 @@
 
 #include "function-manager.h"
 #include "safe_string.h"
-
-#define LOG_MODULE "FUNCTION_MANAGER"
 #include "logger.h"
 
 
