@@ -15,6 +15,37 @@
 
 #include "test-reporter.h"
 
+struct test_reporter_t
+{
+    /**
+     * Reference to Test Engine.
+     *
+     * Used to retrieve test results.
+     */
+    test_engine_t *test_engine;
+
+    /**
+     * Stored test results.
+     */
+    test_result_t results[
+            TEST_REPORTER_MAX_RESULTS];
+
+    /**
+     * Number of stored results.
+     */
+    uint32_t result_count;
+
+    /**
+     * Current execution summary.
+     */
+    test_summary_t summary;
+
+    /**
+     * Reporter synchronization lock.
+     */
+    pthread_mutex_t lock;
+};
+
 static void test_reporter_update_summary(test_summary_t *summary, test_result_t *result) {
 
     if(summary == NULL || result == NULL) {

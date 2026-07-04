@@ -64,6 +64,7 @@
 #define MAX_CONFIG_PARAMETERS 32
 #define CONFIG_KEY_LENGTH     64
 #define CONFIG_STRING_LENGTH 128
+#define PLATFORM_PLUGIN_DIRECTORY_LENGTH 256
 
 /**
  * @brief Supported configuration parameter types.
@@ -204,6 +205,8 @@ typedef struct
 
     /** Human-readable platform description */
     char description[PLATFORM_DESC_LENGTH];
+
+    char plugin_directory[PLATFORM_PLUGIN_DIRECTORY_LENGTH];
 
 } platform_info_t;
 

@@ -43,7 +43,15 @@
  */
 typedef struct plugin_ops_t
 {
-    /**
+     /**
+     * @brief plugin name.
+     */
+    const char *name;
+     /**
+     * @brief plugin version.
+     */
+    const char *version;
+     /**
      * @brief Initialize plugin.
      *
      * @param[in] private_data
@@ -168,6 +176,11 @@ typedef struct plugin_t
      * camera_context_t
      */
     void *private_data;
+
+    plugin_ops_t *(*plugin_init)(void);
+
+    void (*plugin_deinit)(void);
+
 } plugin_t;
 
 /**

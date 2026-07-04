@@ -58,6 +58,115 @@ int32_t plugin_manager_deinit(
         plugin_manager_t *manager);
 
 /**
+ * @brief Load a plugin shared library.
+ *
+ * Loads the shared library corresponding to the
+ * specified plugin, resolves the exported plugin
+ * descriptor and registers the plugin with the
+ * Plugin Manager.
+ *
+ * Loading sequence:
+ *
+ * plugin_manager_load()
+ *        │
+ *        ▼
+ * Construct shared library path
+ *        │
+ *        ▼
+ * dlopen()
+ *        │
+ *        ▼
+ * dlsym("plugin")
+ *        │
+ *        ▼
+ * plugin_manager_register()
+ *
+ * The plugin must export a global symbol named
+ * "plugin" of type plugin_t.
+ *
+ * If the plugin is already loaded, the function
+ * returns success without loading it again.
+ *
+ * Example:
+ *
+ * directory:
+ *     ./plugins/rk3588
+ *
+ * plugin->name:
+ *     gpio_linux
+ *
+ * Shared library:
+ *     ./plugins/rk3588/libgpio_linux.so
+ *
+ * @param[in,out] manager
+ * Plugin Manager instance.
+ *
+ * @param[in] plugin
+ * Plugin descriptor containing at least the
+ * plugin name. On successful return, the
+ * descriptor is populated with the exported
+ * plugin information.
+ *
+ * @param[in] directory
+ * Directory containing plugin shared libraries.
+ *
+ * @return Status code.
+ *
+ * @retval 0
+ * Plugin loaded successfully.
+ *
+ * @retval -1
+ * Invalid parameter.
+ */
+int32_t plugin_manager_load(
+        plugin_manager_t *manager,
+        plugin_t *plugin,
+        const char *directory);
+
+/**
+ * @brief Unload a plugin.
+ *
+ * Unregisters the specified plugin from the Plugin
+ * Manager and unloads its associated shared library.
+ *
+ * Unloading sequence:
+ *
+ * plugin_manager_unload()
+ *        │
+ *        ▼
+ * Verify plugin is loaded
+ *        │
+ *        ▼
+ * Verify plugin is not in use
+ *        │
+ *        ▼
+ * plugin_manager_unregister()
+ *        │
+ *        ▼
+ * dlclose()
+ *
+ * A plugin cannot be unloaded while it is being
+ * referenced by one or more active test instances.
+ *
+ * @param[in,out] manager
+ * Plugin Manager instance.
+ *
+ * @param[in] plugin
+ * Plugin descriptor to unload.
+ *
+ * @return Status code.
+ *
+ * @retval 0
+ * Plugin unloaded successfully.
+ *
+ * @retval -1
+ * Invalid parameter.
+ */
+int32_t plugin_manager_unload(
+        plugin_manager_t *manager,
+        plugin_t *plugin);
+
+/**
  * @brief Register plugin.
  *
  * Adds plugin into registry.

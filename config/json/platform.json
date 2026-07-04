@@ -4,7 +4,8 @@
         "name": "rk3588_evb",
         "vendor": "rockchip",
         "soc": "rk3588",
-        "description": "RK3588 Evaluation Board"
+        "description": "RK3588 Evaluation Board",
+        "plugin_directory": "/lib/plugins/"
     },
 
     "bindings": [

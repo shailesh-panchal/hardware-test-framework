@@ -192,6 +192,8 @@ int32_t platform_parser_load(const char* filename,platform_config_t* cfg){
         get_string(platform, "soc", cfg->platform.soc, sizeof(cfg->platform.soc));
     
         get_string(platform, "description", cfg->platform.description, sizeof(cfg->platform.description));
+
+        get_string(platform, "plugin_directory", cfg->platform.plugin_directory, sizeof(cfg->platform.plugin_directory));
     }
 
     cJSON *bindings = cJSON_GetObjectItemCaseSensitive(root, "bindings");
