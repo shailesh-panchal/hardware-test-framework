@@ -33,6 +33,12 @@
  */
 #define VALIDATION_MAX_COUNT MAX_TESTS
 
+typedef struct{
+    const char *name;
+    void *context;
+    test_operations_t *ops;
+}validation_descriptor_t;
+
 /**
  * @brief Validation registry entry.
  *
@@ -51,8 +57,9 @@ typedef struct validation_entry_t {
     /**
      * Validation operations.
      */
-    test_operations_t *ops;
+    const validation_descriptor_t *descriptor;
 } validation_entry_t;
+
 
 /**
  * @brief Validation System object.
@@ -71,7 +78,8 @@ typedef struct validation_system_t validation_system_t;
  * @retval NULL
  * Initialization failed.
  */
-validation_system_t* validation_system_init(void);
+validation_system_t* validation_system_init(
+        runtime_manager_t *runtime);
 
 /**
  * @brief Deinitialize validation system.
@@ -87,32 +95,6 @@ int32_t validation_system_deinit(
         validation_system_t *system);
 
 /**
- * @brief Register validation implementation.
- *
- * Called by validation modules during
- * framework initialization.
- *
- * Example:
- *
- * led_indication_register()
- *
- * @param[in] system
- * Validation system instance.
- *
- * @param[in] name
- * Validation name.
- *
- * @param[in] ops
- * Validation operations.
- *
- * @return status.
- */
-int32_t validation_system_register_ops(
-        validation_system_t *system,
-        const char *name,
-        test_operations_t *ops);
-
-/**
  * @brief Register validation into Test Engine.
  *
  * Validates:
@@ -125,10 +107,7 @@ int32_t validation_system_register_ops(
  *
  * @param[in] system
  * Validation system instance.
- *
- * @param[in] engine
- * runtime Engine instance.
- *
+ * 
  * @param[in] name
  * Validation name.
  *
@@ -136,7 +115,6 @@ int32_t validation_system_register_ops(
  */
 int32_t validation_system_register(
         validation_system_t *system,
-        runtime_manager_t *runtime,
         const char *name);
 
 /**
@@ -148,13 +126,9 @@ int32_t validation_system_register(
  * @param[in] system
  * Validation system instance.
  *
- * @param[in] engine
- * runtime Engine instance.
- *
  * @return status.
  */
 int32_t validation_system_register_all(
-        validation_system_t *system,
-        runtime_manager_t *runtime);
+        validation_system_t *system);
 
 #endif /* VALIDATION_SYSTEM_H */

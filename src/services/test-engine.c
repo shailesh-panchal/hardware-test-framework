@@ -124,7 +124,7 @@ static void* test_engine_run_instance(test_instance_t *instance){
     instance->context.start_time_ms = get_time_ms();
 
     if(instance->entry->operations.setup) {
-        result = instance->entry->operations.setup(&instance->context);
+        result = instance->entry->operations.setup(instance->entry->private_data);
         if(result != 0) {
 
             instance->result.state = TEST_STATE_FAIL;
@@ -133,7 +133,7 @@ static void* test_engine_run_instance(test_instance_t *instance){
     }
 
     if(instance->entry->operations.execute) {
-        result = instance->entry->operations.execute(&instance->context);
+        result = instance->entry->operations.execute(instance->entry->private_data);
         if(result == 0) {
             instance->result.state = TEST_STATE_PASS;
         }
@@ -146,7 +146,7 @@ cleanup:
 
     if(instance->entry->operations.cleanup){
 
-        instance->entry->operations.cleanup(&instance->context);
+        instance->entry->operations.cleanup(instance->entry->private_data);
     }
     instance->result.result = result;
     instance->result.execution_time_ms = get_time_ms() - instance->context.start_time_ms;
@@ -442,7 +442,7 @@ int32_t test_engine_deinit(test_engine_t *test_engine) {
     return 0;
 }
 
-int32_t test_engine_register(test_engine_t *test_engine, const char *name, test_operations_t *operations) {
+int32_t test_engine_register(test_engine_t *test_engine, const char *name, void *context, test_operations_t *operations) {
 
     test_entry_t *entry = NULL;
 
@@ -462,6 +462,8 @@ int32_t test_engine_register(test_engine_t *test_engine, const char *name, test_
     safe_string_copy(entry->name,name, sizeof(entry->name));
 
     memcpy(&entry->operations, operations, sizeof(test_operations_t));
+    entry->timeout_ms = 0;
+    entry->private_data = context;
     test_engine->test_count++;
 
     return 0;

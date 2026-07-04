@@ -226,6 +226,12 @@ typedef struct
      * Maximum allowed execution time.
      */
     uint32_t timeout_ms;
+
+    /**
+     * private data of test
+     */
+    void *private_data;
+
 } test_entry_t;
 
 /**
@@ -310,6 +316,7 @@ int32_t test_engine_deinit(
  *
  * @param[in] test_engine Test Engine instance.
  * @param[in] name Test name.
+ * @param[in] context Test context.
  * @param[in] operations Test lifecycle operations.
  *
  * @return 0 on success.
@@ -317,6 +324,7 @@ int32_t test_engine_deinit(
 int32_t test_engine_register(
     test_engine_t *test_engine,
     const char *name,
+    void *context,
     test_operations_t *operations);
 /**
  * @brief Execute a single test.

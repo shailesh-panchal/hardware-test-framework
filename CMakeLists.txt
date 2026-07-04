@@ -36,12 +36,20 @@ else()
     )
 endif()
 
+
+
 # ---------------------------------------------------------------------------
 # Output Directories
 # ---------------------------------------------------------------------------
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+
+# ---------------------------------------------------------------------------
+# Validation Registry Generation
+# ---------------------------------------------------------------------------
+
+include(${PROJECT_SOURCE_DIR}/src/validation/cmake/GenerateValidationRegistry.cmake)
 # ---------------------------------------------------------------------------
 # Include Directories
 # ---------------------------------------------------------------------------
@@ -53,6 +61,8 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/src/services/
     ${PROJECT_SOURCE_DIR}/src/utils
     ${PROJECT_SOURCE_DIR}/src/validation
+    ${PROJECT_SOURCE_DIR}/src/validation/generated
+    ${PROJECT_SOURCE_DIR}/src/validation/status_indication_test
     ${PROJECT_SOURCE_DIR}/third-party/cjson-1.7.19
 )
 
@@ -64,7 +74,14 @@ file(GLOB_RECURSE APP_SOURCES
     src/*.c
     third-party/cjson-1.7.19/*.c
 )
+# ---------------------------------------------------------------------------
+# Generated Sources
+# ---------------------------------------------------------------------------
 
+list(APPEND APP_SOURCES
+
+    ${PROJECT_SOURCE_DIR}/src/validation/generated/validation_registry.c
+)
 # ---------------------------------------------------------------------------
 # Executable
 # ---------------------------------------------------------------------------
