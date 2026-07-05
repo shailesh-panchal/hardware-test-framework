@@ -74,7 +74,6 @@ int32_t plugin_manager_deinit(plugin_manager_t *manager) {
     if(manager == NULL) {
         return -1;
     }
-    plugin_manager_close_all(manager);
     pthread_mutex_destroy(&manager->lock);
     free(manager);
     return 0;
@@ -198,57 +197,4 @@ plugin_t* plugin_manager_get(plugin_manager_t *manager, const char *name) {
     }
     pthread_mutex_unlock(&manager->lock);
     return plugin;
-}
-
-int32_t plugin_manager_open(plugin_t *plugin) {
-
-    if(plugin == NULL) {
-        return -1;
-    }
-    if(plugin->ops == NULL || plugin->ops->open == NULL) {
-        return -1;
-    }
-    return plugin->ops->open(plugin->private_data);
-}
-
-int32_t plugin_manager_close(plugin_t *plugin) {
-
-    if(plugin == NULL) {
-        return -1;
-    }
-    if(plugin->ops == NULL || plugin->ops->close == NULL) {
-        return -1;
-    }
-
-    return plugin->ops->close(plugin->private_data);
-}
-
-int32_t plugin_manager_open_all(plugin_manager_t *manager) {
-
-    if(manager == NULL) {
-        return -1;
-    }
-    pthread_mutex_lock(&manager->lock);
-
-    for(uint32_t index = 0; index < manager->plugin_count; index++) {
-
-        plugin_manager_open(manager->plugins[index]);
-    }
-    pthread_mutex_unlock(&manager->lock);
-    return 0;
-}
-
-int32_t plugin_manager_close_all(plugin_manager_t *manager) {
-
-    if(manager == NULL) {
-        return -1;
-    }
-    pthread_mutex_lock(&manager->lock);
-
-    for(uint32_t index = 0; index < manager->plugin_count; index++) {
-
-        plugin_manager_close(manager->plugins[index]);
-    }
-    pthread_mutex_unlock(&manager->lock);
-    return 0;
 }

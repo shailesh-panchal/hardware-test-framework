@@ -48,6 +48,7 @@
 #include "config-manager.h"
 #include "dm.h"
 #include "function-manager.h"
+#include "plugin-manager.h"
 #include "test-manager.h"
 #include "test-engine.h"
 
@@ -148,6 +149,16 @@ test_manager_t* runtime_manager_get_test_manager(
  * @return Pointer to the Test Engine instance.
  */
 test_engine_t* runtime_manager_get_test_engine(
+    runtime_manager_t *runtime);
+
+/**
+ * @brief Get the Plugin Manager instance.
+ *
+ * @param[in] runtime Pointer to the Runtime Manager instance.
+ *
+ * @return Pointer to the Plugin Manager instance.
+ */
+plugin_manager_t* runtime_manager_get_plugin_manager(
     runtime_manager_t *runtime);
 
 #ifdef __cplusplus

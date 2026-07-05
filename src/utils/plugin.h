@@ -60,7 +60,8 @@ typedef struct plugin_ops_t
      * @return status.
      */
     int32_t (*open)(
-            void *private_data);
+            void *plugin_private_data,
+            void **device_private_data);
 
     /**
      * @brief Release plugin.
@@ -71,7 +72,7 @@ typedef struct plugin_ops_t
      * @return status.
      */
     int32_t (*close)(
-            void *private_data);
+            void *device_private_data);
 
     /**
      * @brief Read operation.
@@ -88,7 +89,7 @@ typedef struct plugin_ops_t
      * @return status.
      */
     int32_t (*read)(
-            void *private_data,
+            void *device_private_data,
             void *buffer,
             uint32_t size);
 
@@ -108,7 +109,7 @@ typedef struct plugin_ops_t
      * @return status.
      */
     int32_t (*write)(
-            void *private_data,
+            void *device_private_data,
             const void *buffer,
             uint32_t size);
 
@@ -136,7 +137,7 @@ typedef struct plugin_ops_t
      * @return status.
      */
     int32_t (*control)(
-            void *private_data,
+            void *device_private_data,
             uint32_t command,
             void *argument);
 } plugin_ops_t;

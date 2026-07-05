@@ -7,9 +7,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-
+#include "logger.h"
 #include "runtime.h"
 #include "safe_string.h"
+#include "validation-runtime.h"
 
 /**
  * @brief Runtime framework context.
@@ -44,7 +45,20 @@ struct runtime_manager_t
      */
     test_engine_t *test_engine;
 
+    /**
+     * Plugin Manager instance.
+     */
+    plugin_manager_t *plugin_manager;
+
 };
+
+static void runtime_manager_load_all_plugins(runtime_manager_t *runtime) {
+    if(runtime == NULL || runtime->plugin_manager == NULL) {
+        return;
+    }
+
+    //TODO shailesh
+}
 
 runtime_manager_t* runtime_manager_init(const char *config_path){
     if(config_path == NULL)
@@ -109,6 +123,21 @@ runtime_manager_t* runtime_manager_init(const char *config_path){
         free(runtime);
         return NULL;
     }
+
+    runtime->plugin_manager = plugin_manager_init();
+    if(NULL == runtime->plugin_manager) {
+        printf("failed to int the plugin manager\n");
+        test_engine_deinit(runtime->test_engine);
+        test_manager_deinit(runtime->test_manager);
+        function_manager_deinit(runtime->function_manager);
+        device_manager_deinit(runtime->device_manager);
+        config_manager_deinit(runtime->config_manager);
+        free(runtime);
+        return NULL;
+    }
+
+    runtime_manager_load_all_plugins(runtime);
+    validation_runtime_init(runtime);
     return runtime;
 }
 
@@ -116,6 +145,7 @@ int32_t runtime_manager_deinit(runtime_manager_t *runtime){
     if(runtime == NULL)
         return -1;
 
+    plugin_manager_deinit(runtime->plugin_manager);
     test_engine_deinit(runtime->test_engine);
     test_manager_deinit(runtime->test_manager);
     function_manager_deinit(runtime->function_manager);
@@ -155,4 +185,10 @@ test_engine_t* runtime_manager_get_test_engine(runtime_manager_t *runtime) {
         return NULL;
 
     return runtime->test_engine;
+}
+plugin_manager_t* runtime_manager_get_plugin_manager(runtime_manager_t *runtime){
+    if(runtime == NULL)
+        return NULL;
+
+    return runtime->plugin_manager;
 }

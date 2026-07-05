@@ -35,11 +35,6 @@ struct test_engine_t
      */
     resource_manager_t *resource_manager;
 
-    /*
-     * plugin  manager
-     */
-    plugin_manager_t *plugin_manager;
-
     /**
      * Worker thread pool.
      *
@@ -355,24 +350,12 @@ test_engine_t* test_engine_init(test_manager_t *test_manager,function_manager_t 
     // let register the device with resource manager
     register_device_with_resource_manager(test_engine,device_manager);
 
-    test_engine->plugin_manager = plugin_manager_init();
-
-    if(test_engine->plugin_manager == NULL) {
-        if(test_engine->resource_manager) {
-            resource_manager_deinit(test_engine->resource_manager);    
-        }
-        free(test_engine);
-        return NULL;   
-    }
 
     //init the test scheduler 
     test_engine->scheduler  = test_scheduler_init(test_engine, test_engine->resource_manager,TEST_ENGINE_MAX_WORKERS);
     if(test_engine->scheduler == NULL) {
         if(test_engine->resource_manager) {
             resource_manager_deinit(test_engine->resource_manager);    
-        }
-        if(test_engine->plugin_manager) {
-            plugin_manager_deinit(test_engine->plugin_manager);    
         }
         free(test_engine);
         return NULL;
@@ -390,10 +373,6 @@ test_engine_t* test_engine_init(test_manager_t *test_manager,function_manager_t 
 
             if(test_engine->resource_manager) {
                 resource_manager_deinit(test_engine->resource_manager);    
-            }
-
-            if(test_engine->plugin_manager) {
-                plugin_manager_deinit(test_engine->plugin_manager);    
             }
 
             pthread_mutex_destroy(&test_engine->queue_lock);
@@ -430,9 +409,6 @@ int32_t test_engine_deinit(test_engine_t *test_engine) {
 
     if(test_engine->scheduler) {
         test_scheduler_deinit(test_engine->scheduler);
-    }
-    if(test_engine->plugin_manager) {
-        plugin_manager_deinit(test_engine->plugin_manager);    
     }
     if(test_engine->resource_manager) {
         resource_manager_deinit(test_engine->resource_manager);    

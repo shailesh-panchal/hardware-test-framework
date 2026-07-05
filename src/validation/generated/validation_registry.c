@@ -1,0 +1,16 @@
+#include "validation-system.h"
+
+typedef validation_descriptor_t *
+(*validation_get_descriptor_fn)(void);
+
+extern validation_descriptor_t *
+status_indication_get_descriptor(void);
+
+
+
+const validation_get_descriptor_fn validation_registry[] =
+{
+    status_indication_get_descriptor,
+
+    NULL
+};

@@ -63,6 +63,7 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/src/validation
     ${PROJECT_SOURCE_DIR}/src/validation/generated
     ${PROJECT_SOURCE_DIR}/src/validation/status_indication_test
+    ${PROJECT_SOURCE_DIR}/src/hal/gpio
     ${PROJECT_SOURCE_DIR}/third-party/cjson-1.7.19
 )
 
@@ -71,7 +72,13 @@ include_directories(
 # ---------------------------------------------------------------------------
 
 file(GLOB_RECURSE APP_SOURCES
-    src/*.c
+    src/common/*.c
+    src/config/*.c
+    src/hal/*.c
+    src/services/*.c
+    src/utils/*.c
+    src/validation/*.c
+    src/main.c
     third-party/cjson-1.7.19/*.c
 )
 # ---------------------------------------------------------------------------
@@ -82,6 +89,12 @@ list(APPEND APP_SOURCES
 
     ${PROJECT_SOURCE_DIR}/src/validation/generated/validation_registry.c
 )
+#----------------------------------------------------------------------------
+# Plugins
+#----------------------------------------------------------------------------
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/src/plugins/gpio_linux)
+
 # ---------------------------------------------------------------------------
 # Executable
 # ---------------------------------------------------------------------------

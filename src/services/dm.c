@@ -148,6 +148,18 @@ DeviceState_e device_manager_get_state(device_manager_t* dm, const char* name) {
     return DEVICE_STATE_UNKNOWN;
 }
 
+int32_t device_manager_get_device_by_name(device_manager_t* dm, const char* name, Device_t *device) {
+    if((dm == NULL) || (name == NULL))
+        return -1;
+
+    for(uint32_t index=0; index < dm->count; index++) {
+        if( safe_string_compare(name,dm->devices[index].name)) {
+            memcpy(device, &dm->devices[index],sizeof(Device_t));
+            return 0;
+        }
+    }
+    return -1;
+}
 
 int32_t device_manager_enable(device_manager_t* dm, const char* name) {
     if((dm == NULL) || (name == NULL))

@@ -94,7 +94,7 @@ static int32_t validation_system_register_all_descriptors(validation_system_t *s
 
     for(uint32_t index = 0; index < test_count; index++) {
         if(0 != test_manager_get_test_by_index(test_manager, index, &test_defination)) {
-            continue;;
+            continue;
         }
         uint32_t registration_index = 0;
         while (validation_registry[registration_index] != NULL) {
@@ -104,6 +104,7 @@ static int32_t validation_system_register_all_descriptors(validation_system_t *s
 
             if(safe_string_compare(test_defination.name,descriptor->name)) {
                 validation_system_register_descriptor(system,test_defination.name,descriptor);
+                break;
             }
             registration_index++;
         }
