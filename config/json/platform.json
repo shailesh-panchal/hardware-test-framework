@@ -36,6 +36,21 @@
         },
 
         {
+            "device": "dual_color_led",
+            "plugin": "gpio_linux",
+            "interface": "gpio",
+            "enable" : true,
+
+            "configuration": {
+                "chip": "gpiochip0",
+                "lines": [24, 25],
+                "lines_chip": ["gpiochip0", "gpiochip0"],
+                "directions": [1, 1],
+                "active_low": [false, false]
+            }
+        },
+
+        {
             "device": "ambient_temperature",
             "plugin": "i2c_linux",
             "interface": "i2c",

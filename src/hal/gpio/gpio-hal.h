@@ -52,12 +52,25 @@ typedef enum
  *
  * Filled by Platform Manager from platform.json.
  */
+#define GPIO_MAX_LINES 8
+
 typedef struct
 {
     char       chip[CONFIG_KEY_LENGTH];
     uint32_t          line;
+    /* Support multiple lines per configuration (backwards compatible)
+     * - If lines_count == 0, legacy 'line' and 'chip' fields are used.
+     * - If lines_count > 0, 'lines' and optional 'lines_chip' are used.
+     */
+    uint32_t          lines_count;
+    uint32_t          lines[GPIO_MAX_LINES];
+    char              lines_chip[GPIO_MAX_LINES][CONFIG_KEY_LENGTH];
     gpio_direction_t  direction;
     uint8_t           active_low;
+    uint32_t          directions_count;
+    gpio_direction_t  directions[GPIO_MAX_LINES];
+    uint32_t          active_low_count;
+    uint8_t           active_low_lines[GPIO_MAX_LINES];
 
 } gpio_configuration_t;
 
@@ -121,6 +134,21 @@ int32_t gpio_hal_read(
         gpio_level_t *level);
 
 /**
+ * @brief Read multiple GPIO levels.
+ *
+ * @param[in] handle
+ * @param[out] levels
+ * @param[in] count
+ * Number of levels to read.
+ *
+ * @return Status.
+ */
+int32_t gpio_hal_read_multi(
+        gpio_handle_t *handle,
+        gpio_level_t *levels,
+        uint32_t count);
+
+/**
  * @brief Write GPIO level.
  *
  * @param[in] handle
@@ -132,6 +160,21 @@ int32_t gpio_hal_read(
 int32_t gpio_hal_write(
         gpio_handle_t *handle,
         gpio_level_t level);
+
+/**
+ * @brief Write multiple GPIO levels.
+ *
+ * @param[in] handle
+ * @param[in] levels
+ * @param[in] count
+ * Number of levels to write.
+ *
+ * @return Status.
+ */
+int32_t gpio_hal_write_multi(
+        gpio_handle_t *handle,
+        const gpio_level_t *levels,
+        uint32_t count);
 
 /**
  * @brief Generic GPIO control.

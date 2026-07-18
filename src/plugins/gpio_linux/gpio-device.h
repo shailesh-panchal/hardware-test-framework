@@ -10,6 +10,12 @@ extern "C" {
 #include "plugin.h"
 #include "gpio-hal.h"
 
+/* Forward declarations for libgpiod types (only on Linux) */
+#if defined(__linux__)
+struct gpiod_chip;
+struct gpiod_line;
+#endif
+
 /*----------------------------------------------------------------------------
  * Private Types
  *---------------------------------------------------------------------------*/
@@ -33,6 +39,16 @@ typedef struct
      * Cached GPIO configuration.
      */
     gpio_configuration_t configuration;
+
+#if defined(__linux__)
+        /* libgpiod runtime handles */
+        /* per-line chip and line handles to support multiple lines possibly on different chips */
+        struct gpiod_chip *chips[GPIO_MAX_LINES];
+        struct gpiod_line *lines[GPIO_MAX_LINES];
+        uint32_t lines_count;
+        /* active_low cached for quick access */
+        uint8_t active_low;
+#endif
 
 } gpio_device_context_t;
 

@@ -52,3 +52,20 @@ else()
     )
 
 endif()
+
+# Link libgpiod on UNIX-like platforms only
+if(UNIX)
+    find_package(PkgConfig QUIET)
+    if(PKG_CONFIG_FOUND)
+        pkg_check_modules(LIBGPIOD QUIET gpiod)
+        if(LIBGPIOD_FOUND)
+            target_include_directories(gpio_linux PRIVATE ${LIBGPIOD_INCLUDE_DIRS})
+            target_link_libraries(gpio_linux PRIVATE ${LIBGPIOD_LIBRARIES})
+        else()
+            # fall back to link name if pkg-config not available
+            target_link_libraries(gpio_linux PRIVATE gpiod)
+        endif()
+    else()
+        target_link_libraries(gpio_linux PRIVATE gpiod)
+    endif()
+endif()

@@ -63,20 +63,85 @@ gpio_handle_t *validation_runtime_open_gpio(const char *device_name,gpio_configu
         return NULL;
     }
 
-    //get the GPIO configuration from the device binding
+    /* Get the GPIO configuration from the device binding.
+     * If caller pre-populated configuration->lines_count (>0), preserve existing lines.
+     */
+    uint32_t line_index = configuration->lines_count;
+    uint32_t chip_index = 0;
+    uint32_t direction_index = 0;
+    uint32_t active_low_index = 0;
+
     for(uint32_t index = 0; index < device.binding.configuration.parameter_count; index++) {
         if(strcmp(device.binding.configuration.parameters[index].key,"chip") == 0) {
-            safe_string_copy(configuration->chip, device.binding.configuration.parameters[index].value.string_value, CONFIG_KEY_LENGTH - 1);
+            if (configuration->chip[0] == '\0') {
+                safe_string_copy(configuration->chip, device.binding.configuration.parameters[index].value.string_value, CONFIG_KEY_LENGTH - 1);
+            }
         }
         else if(strcmp(device.binding.configuration.parameters[index].key,"line") == 0) {
-            configuration->line = device.binding.configuration.parameters[index].value.int_value;
+            if (line_index < GPIO_MAX_LINES) {
+                configuration->lines[line_index] = device.binding.configuration.parameters[index].value.int_value;
+                if (configuration->lines_chip[line_index][0] == '\0' && configuration->chip[0] != '\0') {
+                    safe_string_copy(configuration->lines_chip[line_index], configuration->chip, CONFIG_KEY_LENGTH - 1);
+                }
+                line_index++;
+            }
+        }
+        else if(strcmp(device.binding.configuration.parameters[index].key,"line_chip") == 0) {
+            if (chip_index < GPIO_MAX_LINES) {
+                safe_string_copy(configuration->lines_chip[chip_index], device.binding.configuration.parameters[index].value.string_value,
+                    CONFIG_KEY_LENGTH - 1);
+                chip_index++;
+            }
         }
         else if(strcmp(device.binding.configuration.parameters[index].key,"direction") == 0) {
-            configuration->direction = (gpio_direction_t)device.binding.configuration.parameters[index].value.int_value;
+            if (direction_index < GPIO_MAX_LINES) {
+                configuration->directions[direction_index] = (gpio_direction_t)device.binding.configuration.parameters[index].value.int_value;
+                if (direction_index == 0) {
+                    configuration->direction = configuration->directions[0];
+                }
+                direction_index++;
+            }
         }
         else if(strcmp(device.binding.configuration.parameters[index].key,"active_low") == 0) {
-            configuration->active_low = device.binding.configuration.parameters[index].value.bool_value;
+            if (active_low_index < GPIO_MAX_LINES) {
+                configuration->active_low_lines[active_low_index] = device.binding.configuration.parameters[index].value.bool_value;
+                if (active_low_index == 0) {
+                    configuration->active_low = configuration->active_low_lines[0];
+                }
+                active_low_index++;
+            }
         }
+    }
+
+    if (line_index > configuration->lines_count) {
+        configuration->lines_count = line_index;
+    }
+    configuration->directions_count = direction_index;
+    configuration->active_low_count = active_low_index;
+
+    if (configuration->lines_count == 0 && configuration->chip[0] != '\0') {
+        configuration->lines[0] = configuration->line;
+        configuration->lines_count = 1;
+    }
+
+    if (configuration->lines_count > 0) {
+        configuration->line = configuration->lines[0];
+    }
+
+    if (configuration->lines_count > 0 && configuration->lines_chip[0][0] == '\0') {
+        for (uint32_t i = 0; i < configuration->lines_count; ++i) {
+            safe_string_copy(configuration->lines_chip[i], configuration->chip, CONFIG_KEY_LENGTH - 1);
+        }
+    }
+
+    if (configuration->directions_count == 0 && configuration->lines_count > 0) {
+        configuration->directions[0] = configuration->direction;
+        configuration->directions_count = 1;
+    }
+
+    if (configuration->active_low_count == 0 && configuration->lines_count > 0) {
+        configuration->active_low_lines[0] = configuration->active_low;
+        configuration->active_low_count = 1;
     }
 
     /*

@@ -38,18 +38,102 @@ static int32_t get_gpio(cJSON *config, uint32_t binding_count, platform_config_t
 
     count++;
 
-    safe_string_copy(cfg->bindings[binding_count].configuration.parameters[count].key,"line",(CONFIG_KEY_LENGTH -1));
-    cfg->bindings[binding_count].configuration.parameters[count].type = CONFIG_VALUE_INT;
-    get_int(config,"line",&cfg->bindings[binding_count].configuration.parameters[count].value.int_value);
+    cJSON *lines = cJSON_GetObjectItemCaseSensitive(config, "lines");
+    if (cJSON_IsArray(lines)) {
+        cJSON *line = NULL;
+        cJSON_ArrayForEach(line, lines) {
+            if (!cJSON_IsNumber(line)) {
+                continue;
+            }
+            if (count >= MAX_CONFIG_PARAMETERS) {
+                break;
+            }
+            safe_string_copy(cfg->bindings[binding_count].configuration.parameters[count].key,"line",(CONFIG_KEY_LENGTH -1));
+            cfg->bindings[binding_count].configuration.parameters[count].type = CONFIG_VALUE_INT;
+            cfg->bindings[binding_count].configuration.parameters[count].value.int_value = line->valueint;
+            count++;
+        }
+    } else {
+        safe_string_copy(cfg->bindings[binding_count].configuration.parameters[count].key,"line",(CONFIG_KEY_LENGTH -1));
+        cfg->bindings[binding_count].configuration.parameters[count].type = CONFIG_VALUE_INT;
+        get_int(config,"line",&cfg->bindings[binding_count].configuration.parameters[count].value.int_value);
 
-    count++;
+        count++;
+    }
 
-    safe_string_copy(cfg->bindings[binding_count].configuration.parameters[count].key,"active_low",(CONFIG_KEY_LENGTH -1));
-    cfg->bindings[binding_count].configuration.parameters[count].type = CONFIG_VALUE_BOOL;
-    get_bool(config,"active_low",&cfg->bindings[binding_count].configuration.parameters[count].value.bool_value);
+    cJSON *lines_chip = cJSON_GetObjectItemCaseSensitive(config, "lines_chip");
+    if (cJSON_IsArray(lines_chip)) {
+        cJSON *chip = NULL;
+        cJSON_ArrayForEach(chip, lines_chip) {
+            if (!cJSON_IsString(chip)) {
+                continue;
+            }
+            if (count >= MAX_CONFIG_PARAMETERS) {
+                break;
+            }
+            safe_string_copy(cfg->bindings[binding_count].configuration.parameters[count].key,"line_chip",
+                (CONFIG_KEY_LENGTH -1));
+            cfg->bindings[binding_count].configuration.parameters[count].type = CONFIG_VALUE_STRING;
+            safe_string_copy(cfg->bindings[binding_count].configuration.parameters[count].value.string_value,
+                chip->valuestring,(CONFIG_KEY_LENGTH -1));
+            count++;
+        }
+    } else if (cJSON_IsString(lines_chip)) {
+        if (count < MAX_CONFIG_PARAMETERS) {
+            safe_string_copy(cfg->bindings[binding_count].configuration.parameters[count].key,"line_chip",
+                (CONFIG_KEY_LENGTH -1));
+            cfg->bindings[binding_count].configuration.parameters[count].type = CONFIG_VALUE_STRING;
+            safe_string_copy(cfg->bindings[binding_count].configuration.parameters[count].value.string_value,
+                lines_chip->valuestring,(CONFIG_KEY_LENGTH -1));
+            count++;
+        }
+    }
 
-    count++;
+    cJSON *directions = cJSON_GetObjectItemCaseSensitive(config, "directions");
+    if (cJSON_IsArray(directions)) {
+        cJSON *direction = NULL;
+        cJSON_ArrayForEach(direction, directions) {
+            if (!cJSON_IsNumber(direction)) {
+                continue;
+            }
+            if (count >= MAX_CONFIG_PARAMETERS) {
+                break;
+            }
+            safe_string_copy(cfg->bindings[binding_count].configuration.parameters[count].key,"direction",
+                (CONFIG_KEY_LENGTH -1));
+            cfg->bindings[binding_count].configuration.parameters[count].type = CONFIG_VALUE_INT;
+            cfg->bindings[binding_count].configuration.parameters[count].value.int_value = direction->valueint;
+            count++;
+        }
+    } else {
+        safe_string_copy(cfg->bindings[binding_count].configuration.parameters[count].key,"direction",(CONFIG_KEY_LENGTH -1));
+        cfg->bindings[binding_count].configuration.parameters[count].type = CONFIG_VALUE_INT;
+        get_int(config,"direction",&cfg->bindings[binding_count].configuration.parameters[count].value.int_value);
+        count++;
+    }
 
+    cJSON *active_low = cJSON_GetObjectItemCaseSensitive(config, "active_low");
+    if (cJSON_IsArray(active_low)) {
+        cJSON *active = NULL;
+        cJSON_ArrayForEach(active, active_low) {
+            if (!cJSON_IsBool(active)) {
+                continue;
+            }
+            if (count >= MAX_CONFIG_PARAMETERS) {
+                break;
+            }
+            safe_string_copy(cfg->bindings[binding_count].configuration.parameters[count].key,"active_low",
+                (CONFIG_KEY_LENGTH -1));
+            cfg->bindings[binding_count].configuration.parameters[count].type = CONFIG_VALUE_BOOL;
+            cfg->bindings[binding_count].configuration.parameters[count].value.bool_value = cJSON_IsTrue(active) ? 1 : 0;
+            count++;
+        }
+    } else {
+        safe_string_copy(cfg->bindings[binding_count].configuration.parameters[count].key,"active_low",(CONFIG_KEY_LENGTH -1));
+        cfg->bindings[binding_count].configuration.parameters[count].type = CONFIG_VALUE_BOOL;
+        get_bool(config,"active_low",&cfg->bindings[binding_count].configuration.parameters[count].value.bool_value);
+        count++;
+    }
     cfg->bindings[binding_count].configuration.parameter_count = count;
 
     return 0;

@@ -62,12 +62,28 @@ int32_t gpio_hal_read(gpio_handle_t *handle, gpio_level_t *level) {
     return handle->plugin->ops->read(handle->device_private_data,level,sizeof(gpio_level_t));
 }
 
+int32_t gpio_hal_read_multi(gpio_handle_t *handle, gpio_level_t *levels, uint32_t count) {
+    if ((handle == NULL) || (levels == NULL) || (count == 0)) {
+        return -1;
+    }
+
+    return handle->plugin->ops->read(handle->device_private_data,levels,count * sizeof(gpio_level_t));
+}
+
 int32_t gpio_hal_write(gpio_handle_t *handle,gpio_level_t level) {
     if (handle == NULL) {
         return -1;
     }
 
     return handle->plugin->ops->write(handle->device_private_data,&level,sizeof(gpio_level_t));
+}
+
+int32_t gpio_hal_write_multi(gpio_handle_t *handle,const gpio_level_t *levels, uint32_t count) {
+    if ((handle == NULL) || (levels == NULL) || (count == 0)) {
+        return -1;
+    }
+
+    return handle->plugin->ops->write(handle->device_private_data,levels,count * sizeof(gpio_level_t));
 }
 
 int32_t gpio_hal_control(gpio_handle_t *handle,gpio_command_t command,void *argument) {

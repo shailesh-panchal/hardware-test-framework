@@ -79,8 +79,13 @@ static int32_t status_indication_execute(void *context) {
 }
 
 static int32_t status_indication_cleanup(void *context){
-    (void)context;
+    status_indication_context_t *ctx = (status_indication_context_t *)context;
 
+    if (ctx == NULL) {
+        return -1;
+    }
+
+    gpio_hal_close(ctx->gpio_hal);
     return 0;
 }
 
