@@ -27,7 +27,7 @@ gpio_handle_t *gpio_hal_open(plugin_t *plugin) {
     if (plugin->ops->open(plugin->private_data, &handle->device_private_data) != 0) {
         free(handle);
         return NULL;
-    }
+    } 
 
     return handle;
 }

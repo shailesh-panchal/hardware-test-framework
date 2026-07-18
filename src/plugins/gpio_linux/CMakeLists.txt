@@ -17,7 +17,6 @@ target_include_directories(gpio_linux
     PRIVATE
         ${PROJECT_SOURCE_DIR}/include
         ${PROJECT_SOURCE_DIR}/src
-        ${PROJECT_SOURCE_DIR}/src/runtime
         ${PROJECT_SOURCE_DIR}/src/hal
 )
 

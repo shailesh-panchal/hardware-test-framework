@@ -54,7 +54,7 @@ typedef enum
  */
 typedef struct
 {
-    const char       *chip;
+    char       chip[CONFIG_KEY_LENGTH];
     uint32_t          line;
     gpio_direction_t  direction;
     uint8_t           active_low;

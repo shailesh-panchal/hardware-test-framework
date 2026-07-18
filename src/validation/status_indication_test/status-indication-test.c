@@ -32,6 +32,7 @@ static const validation_descriptor_t status_indication_descriptor = {
 
 static int32_t status_indication_setup(void *context) {
     status_indication_context_t *ctx = (status_indication_context_t *)context;
+    gpio_configuration_t gpio_config = {0};
 
     if (ctx == NULL) {
         return -1;
@@ -40,15 +41,17 @@ static int32_t status_indication_setup(void *context) {
     /*
      * Open GPIO HAL for the status_led device.
      */
-    ctx->gpio_hal = validation_runtime_open_gpio(status_indication_descriptor.name);
+    ctx->gpio_hal = validation_runtime_open_gpio(status_indication_descriptor.name,&gpio_config);
 
     if (ctx->gpio_hal == NULL) {
         LOG_ERROR("Status LED handle is NULL.");
         return -1;
     }
 
+
     //configure the GPIO plugin as per the requirement of the test case
     //TODO shailesh how to get the GPIO configuration for the status LED from the config file or test descriptor
+    gpio_hal_configure(ctx->gpio_hal,&gpio_config);
 
     return 0;
 }

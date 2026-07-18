@@ -29,6 +29,7 @@ static int32_t get_gpio(cJSON *config, uint32_t binding_count, platform_config_t
     if(binding_count >= MAX_BINDINGS) {
         return -1;
     }
+    
 
     safe_string_copy(cfg->bindings[binding_count].configuration.parameters[count].key,"chip",(CONFIG_KEY_LENGTH -1));
     cfg->bindings[binding_count].configuration.parameters[count].type = CONFIG_VALUE_STRING;

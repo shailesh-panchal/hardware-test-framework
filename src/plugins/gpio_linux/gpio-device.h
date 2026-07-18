@@ -30,20 +30,6 @@ extern "C" {
 typedef struct
 {
     /**
-     * Platform specific GPIO implementation.
-     *
-     * Linux:
-     *     struct gpiod_line *
-     *
-     * Windows:
-     *     HANDLE
-     *
-     * MCU:
-     *     GPIO_TypeDef *
-     */
-    void *platform_context;
-
-    /**
      * Cached GPIO configuration.
      */
     gpio_configuration_t configuration;

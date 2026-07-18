@@ -38,7 +38,8 @@ int32_t validation_runtime_deinit(void);
  * @return GPIO handle.
  */
 gpio_handle_t *validation_runtime_open_gpio(
-        const char *device_name);
+        const char *device_name,
+        gpio_configuration_t *configuration);
 
 /**
  * @brief Close GPIO device.
