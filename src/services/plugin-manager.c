@@ -13,6 +13,7 @@
 #ifndef _WIN32
 #include <dlfcn.h>
 #endif
+#include "logger.h"
 
 #include "plugin-manager.h"
 #include "safe_string.h"
@@ -101,7 +102,6 @@ int32_t plugin_manager_load(plugin_manager_t *manager, plugin_t *plugin, const c
     pthread_mutex_unlock(&manager->lock);
 
 #ifndef _WIN32
-    plugin_ops_t *ops = NULL;
 
     plugin->private_data = dlopen(plugin_path, RTLD_NOW);
 
@@ -121,7 +121,7 @@ int32_t plugin_manager_load(plugin_manager_t *manager, plugin_t *plugin, const c
         return -1;
     }
     plugin->plugin_deinit = dlsym(plugin->private_data, "plugin_deinit");
-    char *err = dlerror();
+    err = dlerror();
     if(err){
         LOG_ERROR("failed to get plugin_deinit symbol: %s\n", err);
 
