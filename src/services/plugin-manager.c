@@ -112,7 +112,7 @@ int32_t plugin_manager_load(plugin_manager_t *manager, plugin_t *plugin, const c
 
     dlerror();
 
-    plugin->plugin_init = dlsym(plugin->private_data, "plugin_init");
+    *(void **)(&plugin->plugin_init) = dlsym(plugin->private_data, "plugin_init");
     char *err = dlerror();
     if(err){
         LOG_ERROR("failed to get plugin_init symbol: %s\n", err);
@@ -120,7 +120,7 @@ int32_t plugin_manager_load(plugin_manager_t *manager, plugin_t *plugin, const c
         dlclose(plugin->private_data);
         return -1;
     }
-    plugin->plugin_deinit = dlsym(plugin->private_data, "plugin_deinit");
+    *(void **)(&plugin->plugin_deinit) = dlsym(plugin->private_data, "plugin_deinit");
     err = dlerror();
     if(err){
         LOG_ERROR("failed to get plugin_deinit symbol: %s\n", err);

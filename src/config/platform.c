@@ -140,38 +140,65 @@ static int32_t get_gpio(cJSON *config, uint32_t binding_count, platform_config_t
 }
 
 static int32_t get_i2c(cJSON *config, uint32_t binding_count, platform_config_t *cfg) {
-  
-    return 0;
     uint8_t count = 0;
     if (config == NULL || cfg == NULL) {
         return -1;
-    } 
+    }
 
-    if(binding_count >= MAX_BINDINGS) {
+    if (binding_count >= MAX_BINDINGS) {
         return -1;
     }
 
-    safe_string_copy(cfg->bindings[binding_count].configuration.parameters[count].key,"bus",(CONFIG_KEY_LENGTH -1));
+    safe_string_copy(cfg->bindings[binding_count].configuration.parameters[count].key, "bus", (CONFIG_KEY_LENGTH - 1));
     cfg->bindings[binding_count].configuration.parameters[count].type = CONFIG_VALUE_STRING;
-    get_string(config,"bus",cfg->bindings[binding_count].configuration.parameters[count].value.string_value,
-    sizeof(cfg->bindings[binding_count].configuration.parameters[count].value.string_value));
-
+    get_string(config, "bus", cfg->bindings[binding_count].configuration.parameters[count].value.string_value,
+        sizeof(cfg->bindings[binding_count].configuration.parameters[count].value.string_value));
     count++;
 
-    safe_string_copy(cfg->bindings[binding_count].configuration.parameters[count].key,"address",(CONFIG_KEY_LENGTH -1));
+    safe_string_copy(cfg->bindings[binding_count].configuration.parameters[count].key, "address", (CONFIG_KEY_LENGTH - 1));
     cfg->bindings[binding_count].configuration.parameters[count].type = CONFIG_VALUE_INT;
-    get_int(config,"address",&cfg->bindings[binding_count].configuration.parameters[count].value.int_value);
-
+    get_int(config, "address", &cfg->bindings[binding_count].configuration.parameters[count].value.int_value);
     count++;
 
-    safe_string_copy(cfg->bindings[binding_count].configuration.parameters[count].key,"frequency_hz",(CONFIG_KEY_LENGTH -1));
+    safe_string_copy(cfg->bindings[binding_count].configuration.parameters[count].key, "frequency_hz", (CONFIG_KEY_LENGTH - 1));
     cfg->bindings[binding_count].configuration.parameters[count].type = CONFIG_VALUE_INT;
-    get_int(config,"frequency_hz",&cfg->bindings[binding_count].configuration.parameters[count].value.int_value);
-
+    get_int(config, "frequency_hz", &cfg->bindings[binding_count].configuration.parameters[count].value.int_value);
     count++;
 
     cfg->bindings[binding_count].configuration.parameter_count = count;
 
+    return 0;
+}
+
+static int32_t get_v4l2(cJSON *config, uint32_t binding_count, platform_config_t *cfg) {
+    uint8_t count = 0;
+    if (config == NULL || cfg == NULL) {
+        return -1;
+    }
+
+    if (binding_count >= MAX_BINDINGS) {
+        return -1;
+    }
+
+    safe_string_copy(cfg->bindings[binding_count].configuration.parameters[count].key, "device", (CONFIG_KEY_LENGTH - 1));
+    cfg->bindings[binding_count].configuration.parameters[count].type = CONFIG_VALUE_STRING;
+    get_string(config, "device", cfg->bindings[binding_count].configuration.parameters[count].value.string_value,
+        sizeof(cfg->bindings[binding_count].configuration.parameters[count].value.string_value));
+    count++;
+
+    safe_string_copy(cfg->bindings[binding_count].configuration.parameters[count].key, "pixel_format", (CONFIG_KEY_LENGTH - 1));
+    cfg->bindings[binding_count].configuration.parameters[count].type = CONFIG_VALUE_STRING;
+    get_string(config, "pixel_format", cfg->bindings[binding_count].configuration.parameters[count].value.string_value,
+        sizeof(cfg->bindings[binding_count].configuration.parameters[count].value.string_value));
+    count++;
+
+    safe_string_copy(cfg->bindings[binding_count].configuration.parameters[count].key, "resolution", (CONFIG_KEY_LENGTH - 1));
+    cfg->bindings[binding_count].configuration.parameters[count].type = CONFIG_VALUE_STRING;
+    get_string(config, "resolution", cfg->bindings[binding_count].configuration.parameters[count].value.string_value,
+        sizeof(cfg->bindings[binding_count].configuration.parameters[count].value.string_value));
+    count++;
+
+    cfg->bindings[binding_count].configuration.parameter_count = count;
 
     return 0;
 }
@@ -295,14 +322,17 @@ int32_t platform_parser_load(const char* filename,platform_config_t* cfg){
             
             cJSON *config = cJSON_GetObjectItemCaseSensitive(binding, "configuration");
             if (cJSON_IsObject(config)) {
-                if(safe_string_compare(cfg->bindings->interface,"gpio")) {
-                    get_gpio(config,cfg->binding_count,cfg);
+                if (safe_string_compare(cfg->bindings[cfg->binding_count].interface, "gpio")) {
+                    get_gpio(config, cfg->binding_count, cfg);
                 }
-                else if(safe_string_compare(cfg->bindings->interface,"i2c")) {
-                    get_i2c(config,cfg->binding_count,cfg);
+                else if (safe_string_compare(cfg->bindings[cfg->binding_count].interface, "i2c")) {
+                    get_i2c(config, cfg->binding_count, cfg);
+                }
+                else if (safe_string_compare(cfg->bindings[cfg->binding_count].interface, "v4l2")) {
+                    get_v4l2(config, cfg->binding_count, cfg);
                 }
                 else {
-                    LOG_DEBUG("failed to match inteface %s\n",cfg->bindings->interface);
+                    LOG_DEBUG("failed to match interface %s\n", cfg->bindings[cfg->binding_count].interface);
                 }
             }
             cfg->binding_count++;
