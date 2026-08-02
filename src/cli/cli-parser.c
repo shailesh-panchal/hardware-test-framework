@@ -6,7 +6,7 @@
 #define DEFAULT_CONFIG_PATH "config/json"
 
 static int parse_list_filter(const char *argument, cli_list_filter_t *filter) {
-    if(strcmp(argument, "--runnable-test") == 0 || strcmp(argument, "-R") == 0 ||
+    if(strcmp(argument, "--runnable-test") == 0 || strcmp(argument, "-r") == 0 ||
        strcmp(argument, "--runable-test") == 0) {
         *filter = CLI_LIST_RUNNABLE;
         return 0;
