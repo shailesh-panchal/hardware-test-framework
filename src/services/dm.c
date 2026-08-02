@@ -128,7 +128,7 @@ int32_t device_manager_get_device_by_index(device_manager_t* dm, uint32_t index,
     if(dm == NULL)
         return -1;
 
-    if(index > dm->count)
+    if(index >= dm->count)
         return -1;
 
     memcpy(device, &dm->devices[index],sizeof(Device_t));

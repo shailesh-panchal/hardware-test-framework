@@ -72,6 +72,7 @@ include_directories(
 # ---------------------------------------------------------------------------
 
 file(GLOB_RECURSE APP_SOURCES
+    src/cli/*.c
     src/common/*.c
     src/config/*.c
     src/hal/*.c
@@ -94,6 +95,7 @@ list(APPEND APP_SOURCES
 #----------------------------------------------------------------------------
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/plugins/gpio_linux)
+add_subdirectory(${PROJECT_SOURCE_DIR}/src/plugins/i2c_linux)
 
 # ---------------------------------------------------------------------------
 # Executable
@@ -105,4 +107,5 @@ add_executable(validator
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/src/common
+    ${CMAKE_SOURCE_DIR}/src/cli
 )

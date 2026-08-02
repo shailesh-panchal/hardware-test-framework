@@ -134,7 +134,7 @@ int32_t config_manager_get_platform_device_by_index(config_manager_t *cfg_man, u
     if((cfg_man == NULL) || (device_binding == NULL))
         return -1;
     
-    if(index > cfg_man->platform_config.binding_count)
+    if(index >= cfg_man->platform_config.binding_count)
         return -1;
 
     memcpy(device_binding, &cfg_man->platform_config.bindings[index], sizeof(device_binding_t));
@@ -152,7 +152,7 @@ int32_t config_manager_get_device_by_index(config_manager_t *cfg_man, uint32_t i
     if((cfg_man == NULL) || (device == NULL))
         return -1;
     
-    if(index > cfg_man->device_config.count)
+    if(index >= cfg_man->device_config.count)
         return -1;
 
     memcpy(device, &cfg_man->device_config.devices[index], sizeof(device_def_t));
@@ -171,7 +171,7 @@ int32_t config_manager_get_function_by_index(config_manager_t *cfg_man, uint32_t
     if((cfg_man == NULL) || (function == NULL))
         return -1;
     
-    if(index > cfg_man->function_config.count)
+    if(index >= cfg_man->function_config.count)
         return -1;
 
     memcpy(function, &cfg_man->function_config.functions[index], sizeof(function_def_t));
@@ -189,7 +189,7 @@ int32_t config_manager_get_test_by_index(config_manager_t *cfg_man, uint32_t ind
     if((cfg_man == NULL) || (test == NULL))
         return -1;
     
-    if(index > cfg_man->test_config.count)
+    if(index >= cfg_man->test_config.count)
         return -1;
 
     memcpy(test, &cfg_man->test_config.tests[index], sizeof(test_def_t));

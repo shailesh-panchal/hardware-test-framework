@@ -111,9 +111,10 @@ static void* logger_worker(void* arg) {
     (void)arg;
     while (loggerContext.running || loggerContext.fifo.count > 0) {
         LoggerMessage_t msg;
-        dequeue(&msg);
-        printf("%s\n", msg.message);
-        fflush(stdout);
+        if(dequeue(&msg) == 0) {
+            printf("%s\n", msg.message);
+            fflush(stdout);
+        }
     }
 
     return NULL;
@@ -125,6 +126,8 @@ int32_t logger_init(void) {
 
     pthread_cond_init(&loggerContext.queueCond, NULL);
 
+    loggerContext.running = true;
+
     int ret = pthread_create(&loggerContext.workerThread, NULL,logger_worker, NULL);
 
     if(ret != 0) {
@@ -134,7 +137,6 @@ int32_t logger_init(void) {
     }
         
     loggerContext.logLevel = LOG_LEVEL_ERROR;
-    loggerContext.running = true;
     loggerContext.fifo.head = 0;
     loggerContext.fifo.tail = 0;
     loggerContext.fifo.count = 0;
@@ -205,4 +207,3 @@ void logger_log(LogLevel_e level,const char* file,const char* function,int line,
     snprintf(finalMsg, sizeof(finalMsg), "%s [%s] [%s:%d %s] %s", timestamp, get_level_string(level), file, line , function, message);
     enqueue(finalMsg);
 }
-

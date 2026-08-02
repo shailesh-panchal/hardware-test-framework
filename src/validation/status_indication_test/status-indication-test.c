@@ -41,7 +41,7 @@ static int32_t status_indication_setup(void *context) {
     /*
      * Open GPIO HAL for the status_led device.
      */
-    ctx->gpio_hal = validation_runtime_open_gpio(status_indication_descriptor.name,&gpio_config);
+    ctx->gpio_hal = validation_runtime_open_gpio("status_led",&gpio_config);
 
     if (ctx->gpio_hal == NULL) {
         LOG_ERROR("Status LED handle is NULL.");
@@ -85,7 +85,10 @@ static int32_t status_indication_cleanup(void *context){
         return -1;
     }
 
-    gpio_hal_close(ctx->gpio_hal);
+    if(ctx->gpio_hal != NULL) {
+        gpio_hal_close(ctx->gpio_hal);
+        ctx->gpio_hal = NULL;
+    }
     return 0;
 }
 

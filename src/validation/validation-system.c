@@ -172,7 +172,7 @@ int32_t validation_system_register(validation_system_t *system, const char *name
     }
 
     //check the availiblity of function
-    if(0 != function_manager_is_available(function_manager,test_defination.function)) {
+    if(!function_manager_is_available(function_manager,test_defination.function)) {
         return -1;
     }
 
@@ -199,6 +199,10 @@ int32_t validation_system_register(validation_system_t *system, const char *name
      * Register into Test Engine
      */
     return test_engine_register(test_engine, name,descriptor->context,descriptor->ops);
+}
+
+bool validation_system_is_implemented(validation_system_t *system, const char *name) {
+    return validation_system_get_descriptor(system, name) != NULL;
 }
 int32_t validation_system_register_all(validation_system_t *system) {
 

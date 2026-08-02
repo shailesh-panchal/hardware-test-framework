@@ -21,6 +21,7 @@
 
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "test.h"
 #include "runtime.h"
@@ -114,6 +115,13 @@ int32_t validation_system_deinit(
  * @return status.
  */
 int32_t validation_system_register(
+        validation_system_t *system,
+        const char *name);
+
+/**
+ * @brief Return whether a platform-supported test has a linked validation.
+ */
+bool validation_system_is_implemented(
         validation_system_t *system,
         const char *name);
 

@@ -66,6 +66,7 @@ plugin_manager_t* plugin_manager_init(void) {
     if(manager == NULL) {
         return NULL;
     }
+    memset(manager, 0, sizeof(*manager));
     pthread_mutex_init(&manager->lock, NULL);
     return manager;
 }

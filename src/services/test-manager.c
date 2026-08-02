@@ -60,7 +60,7 @@ static int32_t prepare_test_manager_info(test_manager_t *tm, config_manager_t *c
                 continue;
             }
             if(safe_string_compare(test_def.function,function_def.name)) {
-                safe_string_copy(tm->tests[tmp_count].name,function_def.name,sizeof(tm->tests[tmp_count].name));
+                safe_string_copy(tm->tests[tmp_count].name,test_def.name,sizeof(tm->tests[tmp_count].name));
                 tm->tests[tmp_count].state = TEST_STATE_AVAILABLE;
                 memcpy(&tm->tests[tmp_count].definition,&test_def,sizeof(test_def_t));
                 tm->count = tmp_count + 1;
@@ -125,7 +125,7 @@ int32_t test_manager_get_test_by_index(test_manager_t* tm, uint32_t index, test_
     if((tm == NULL) || (test == NULL))
         return -1;
 
-    if(index < tm->count)
+    if(index >= tm->count)
         return -1;
 
     memcpy(test,&tm->tests[index].definition,sizeof(test_def_t));
