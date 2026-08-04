@@ -56,6 +56,7 @@
 #include <stdint.h>
 #include "device.h"
 #include "platform.h"
+#include "test.h"
 
 /**
  * @brief Maximum configuration path length.
@@ -260,7 +261,7 @@ int32_t config_manager_get_device_by_index(
     uint32_t index,
     device_def_t *device);
 
-    /**
+/**
  * @brief Retrieve the number of logical function defined in the function configuration.
  *
  * Returns the total number of function definitions loaded from the
@@ -296,5 +297,41 @@ int32_t config_manager_get_function_by_index(
     config_manager_t *cfg_man,
     uint32_t index,
     function_def_t *function);
+
+/**
+ * @brief Retrieve the number of logical test count in the function configuration.
+ *
+ * Returns the total number of test definitions loaded from the
+ * test configuration file.
+ *
+ * @param[in] cfg_man Pointer to the Configuration Manager instance.
+ * @param[out] count Pointer to a variable that receives
+ *                          the number of configured test.
+ *
+ * @retval 0 Success.
+ * @retval -1 Failure.
+ */
+int32_t config_manager_get_test_count(
+    config_manager_t *cfg_man,
+    uint32_t *count);
+
+/**
+ * @brief Retrieve a logical test definition by index.
+ *
+ * Returns the test definition associated with the specified
+ * index from the test configuration.
+ *
+ * @param[in] cfg_man Pointer to the Configuration Manager instance.
+ * @param[in] index Zero-based index of the test definition.
+ * @param[out] test Pointer to a structure that receives
+ *                    the test definition.
+ *
+ * @retval 0 Success.
+ * @retval -1 Failure.
+ */
+int32_t config_manager_get_test_by_index(
+    config_manager_t *cfg_man,
+    uint32_t index,
+    test_def_t *test);
 
 #endif /* CONFIG_MANAGER_H */

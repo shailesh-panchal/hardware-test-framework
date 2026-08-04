@@ -3,15 +3,17 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <time.h>
 
 #include "util.h"
-
+#include "logger.h"
 
 // Helper function to read the entire file into a dynamically allocated string
 char* read_file_to_string(const char *filename) {
     FILE *file = fopen(filename, "rb");
     if (file == NULL) {
-        printf("Error: Could not open file %s\n", filename);
+        // printf("Error: Could not open file %s\n", filename);
+        LOG_ERROR("Could not open file %s", filename);
         return NULL;
     }
 
@@ -23,7 +25,8 @@ char* read_file_to_string(const char *filename) {
     // Allocate memory for the buffer
     char *buffer = (char*)malloc(length + 1);
     if (buffer == NULL) {
-        printf("Error: Memory allocation failed\n");
+        // printf("Error: Memory allocation failed\n");
+        LOG_ERROR("Memory allocation failed");
         fclose(file);
         return NULL;
     }
@@ -34,4 +37,12 @@ char* read_file_to_string(const char *filename) {
 
     fclose(file);
     return buffer;
+}
+
+uint64_t get_time_ms(void) {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+
+    return ((uint64_t)ts.tv_sec * 1000ULL) + ((uint64_t)ts.tv_nsec / 1000000ULL);
+
 }

@@ -159,3 +159,19 @@ cd build
 
 cmake ..
 ```
+
+### Run validation tests
+
+```bash
+./bin/validator config/json --list
+./bin/validator --list --runnable-test
+./bin/validator --list --unimplemented-test
+./bin/validator --list --unsupported-list
+./bin/validator -l -r
+./bin/validator config/json --run status_indication_test
+./bin/validator config/json --run-all
+```
+
+`--list` separates runnable tests, platform-supported tests that do not yet
+have a linked implementation, and tests unavailable on the selected platform.
+`--run-all` executes runnable tests sequentially and continues after failures.

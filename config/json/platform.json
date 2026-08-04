@@ -4,7 +4,8 @@
         "name": "rk3588_evb",
         "vendor": "rockchip",
         "soc": "rk3588",
-        "description": "RK3588 Evaluation Board"
+        "description": "RK3588 Evaluation Board",
+        "plugin_directory": "/lib/plugins/"
     },
 
     "bindings": [
@@ -31,6 +32,21 @@
                 "chip": "gpiochip0",
                 "line": 26,
                 "active_low": true
+            }
+        },
+
+        {
+            "device": "dual_color_led",
+            "plugin": "gpio_linux",
+            "interface": "gpio",
+            "enable" : true,
+
+            "configuration": {
+                "chip": "gpiochip0",
+                "lines": [24, 25],
+                "lines_chip": ["gpiochip0", "gpiochip0"],
+                "directions": [1, 1],
+                "active_low": [false, false]
             }
         },
 

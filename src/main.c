@@ -1,89 +1,224 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
+#include <time.h>
 
-#include "dm.h"
+#include "cli-parser.h"
 #include "config-manager.h"
-#include "function-manager.h"
+#include "logger.h"
+#include "runtime.h"
+#include "test-engine.h"
+#include "test-manager.h"
+#include "validation-system.h"
 
+#define ANSI_COLOR_GREEN  "\033[32m"
+#define ANSI_COLOR_YELLOW "\033[33m"
+#define ANSI_COLOR_RED    "\033[31m"
+#define ANSI_COLOR_RESET  "\033[0m"
+
+static const char *result_state_name(test_execution_state_e state) {
+    switch(state) {
+        case TEST_STATE_PASS: return "PASS";
+        case TEST_STATE_FAIL: return "FAIL";
+        case TEST_STATE_SKIP: return "SKIP";
+        case TEST_STATE_TIMEOUT: return "TIMEOUT";
+        default: return "UNKNOWN";
+    }
+}
+
+static void print_test(const test_def_t *test) {
+    printf("  %-32s %s\n", test->name, test->description);
+    printf("    Function: %s\n", test->function);
+}
+
+static int wait_for_test_result(test_engine_t *test_engine, const char *name,
+    test_result_t *result) {
+    const struct timespec wait_interval = { .tv_sec = 0, .tv_nsec = 10000000 };
+
+    for(uint32_t attempt = 0; attempt < 3000; attempt++) {
+        if(test_engine_get_result(test_engine, name, result) == 0 &&
+           result->state != TEST_STATE_QUEUED && result->state != TEST_STATE_RUNNING) {
+            return 0;
+        }
+        nanosleep(&wait_interval, NULL);
+    }
+    return -1;
+}
+
+static int find_configured_test(config_manager_t *config_manager, const char *name,
+    test_def_t *test) {
+    uint32_t test_count = 0;
+
+    if(config_manager == NULL || name == NULL || test == NULL ||
+       config_manager_get_test_count(config_manager, &test_count) != 0) {
+        return -1;
+    }
+    for(uint32_t index = 0; index < test_count; index++) {
+        if(config_manager_get_test_by_index(config_manager, index, test) == 0 &&
+           strcmp(test->name, name) == 0) {
+            return 0;
+        }
+    }
+    return -1;
+}
+
+static int list_tests(runtime_manager_t *runtime, validation_system_t *system,
+    cli_list_filter_t filter) {
+    config_manager_t *config_manager = runtime_manager_get_config_manager(runtime);
+    test_manager_t *test_manager = runtime_manager_get_test_manager(runtime);
+    uint32_t test_count = 0;
+    test_def_t test = {0};
+
+    if(config_manager_get_test_count(config_manager, &test_count) != 0) {
+        return -1;
+    }
+
+    if(filter == CLI_LIST_ALL || filter == CLI_LIST_RUNNABLE) {
+        printf(ANSI_COLOR_GREEN "Runnable tests:" ANSI_COLOR_RESET "\n");
+        for(uint32_t index = 0; index < test_count; index++) {
+            if(config_manager_get_test_by_index(config_manager, index, &test) == 0 &&
+               test_manager_test_is_available(test_manager, test.name) &&
+               validation_system_is_implemented(system, test.name)) {
+                print_test(&test);
+            }
+        }
+    }
+
+    if(filter == CLI_LIST_ALL || filter == CLI_LIST_UNIMPLEMENTED) {
+        printf(ANSI_COLOR_YELLOW "Supported, not implemented tests:" ANSI_COLOR_RESET "\n");
+        for(uint32_t index = 0; index < test_count; index++) {
+            if(config_manager_get_test_by_index(config_manager, index, &test) == 0 &&
+               test_manager_test_is_available(test_manager, test.name) &&
+               !validation_system_is_implemented(system, test.name)) {
+                print_test(&test);
+            }
+        }
+    }
+
+    if(filter == CLI_LIST_ALL || filter == CLI_LIST_UNAVAILABLE) {
+        printf(ANSI_COLOR_RED "Unavailable on this platform tests:" ANSI_COLOR_RESET "\n");
+        for(uint32_t index = 0; index < test_count; index++) {
+            if(config_manager_get_test_by_index(config_manager, index, &test) == 0 &&
+               !test_manager_test_is_available(test_manager, test.name)) {
+                print_test(&test);
+            }
+        }
+    }
+    return 0;
+}
+
+static int run_test(runtime_manager_t *runtime, validation_system_t *system,
+    const test_def_t *test) {
+    test_manager_t *test_manager = runtime_manager_get_test_manager(runtime);
+    test_engine_t *test_engine = runtime_manager_get_test_engine(runtime);
+    test_result_t result = {0};
+
+    if(!test_manager_test_is_available(test_manager, test->name)) {
+        fprintf(stderr, "Test '%s' is unavailable on this platform.\n", test->name);
+        return -1;
+    }
+    if(!validation_system_is_implemented(system, test->name)) {
+        fprintf(stderr, "Test '%s' is supported but not implemented.\n", test->name);
+        return -1;
+    }
+    if(validation_system_register(system, test->name) != 0 ||
+       test_engine_execute(test_engine, test->name) != 0 ||
+       wait_for_test_result(test_engine, test->name, &result) != 0) {
+        fprintf(stderr, "Unable to run test '%s'.\n", test->name);
+        return -1;
+    }
+
+    printf("%-32s %s (%u ms)\n", result.name,
+        result_state_name(result.state), result.execution_time_ms);
+    return result.state == TEST_STATE_PASS ? 0 : -1;
+}
+
+static int run_all_tests(runtime_manager_t *runtime, validation_system_t *system) {
+    config_manager_t *config_manager = runtime_manager_get_config_manager(runtime);
+    test_manager_t *test_manager = runtime_manager_get_test_manager(runtime);
+    test_engine_t *test_engine = runtime_manager_get_test_engine(runtime);
+    uint32_t test_count = 0;
+    uint32_t passed = 0, failed = 0, skipped = 0;
+    test_def_t test = {0};
+
+    if(config_manager_get_test_count(config_manager, &test_count) != 0 ||
+       validation_system_register_all(system) != 0 ||
+       test_engine_execute_all(test_engine) != 0) {
+        return -1;
+    }
+
+    for(uint32_t index = 0; index < test_count; index++) {
+        test_result_t result = {0};
+        if(config_manager_get_test_by_index(config_manager, index, &test) != 0) {
+            failed++;
+            continue;
+        }
+        if(!test_manager_test_is_available(test_manager, test.name) ||
+           !validation_system_is_implemented(system, test.name)) {
+            printf("%-32s SKIP\n", test.name);
+            skipped++;
+            continue;
+        }
+        if(wait_for_test_result(test_engine, test.name, &result) != 0 ||
+           result.state != TEST_STATE_PASS) {
+            printf("%-32s FAIL\n", test.name);
+            failed++;
+            continue;
+        }
+        printf("%-32s PASS (%u ms)\n", result.name, result.execution_time_ms);
+        passed++;
+    }
+
+    printf("Summary: passed=%u failed=%u skipped=%u\n", passed, failed, skipped);
+    return failed == 0 ? 0 : -1;
+}
 
 int32_t main(int argc, char *argv[]) {
+    runtime_manager_t *runtime = NULL;
+    validation_system_t *validation_system = NULL;
+    cli_options_t options;
+    int status = EXIT_FAILURE;
 
-    if(argc != 2) {
-        printf("Usage: %s <config_path>\n",argv[0]);
+    if(logger_init() != 0) {
         return EXIT_FAILURE;
     }
-
-    config_manager_t *config_manager = NULL;
-    device_manager_t *device_manager = NULL;
-    function_manager_t *function_manager = NULL;
-
-    config_manager = config_manager_init(argv[1]);
-
-    if(config_manager == NULL)
-        return EXIT_FAILURE;
-
-    if(0 != config_manager_load(config_manager)) {
-        printf("failed to load configuration\n");
-        config_manager_deinit(config_manager);
-        return EXIT_FAILURE;
+    if(cli_parse(argc, argv, &options) != 0) {
+        cli_print_usage(argv[0]);
+        status = 2;
+        goto cleanup;
     }
 
-    printf("Config Manager initialized with path: %s\n", argv[1]);
-
-    device_manager = device_manager_init(config_manager);
-    if(device_manager == NULL) {
-        printf("failed to load configuration\n");
-        config_manager_deinit(config_manager);
-        return EXIT_FAILURE;
+    runtime = runtime_manager_init(options.config_path);
+    if(runtime == NULL) {
+        goto cleanup;
+    }
+    validation_system = validation_system_init(runtime);
+    if(validation_system == NULL) {
+        goto cleanup;
     }
 
-    uint32_t platform_device_count = 0, function_count = 0;
-    
-    if(0 != device_manager_get_count(device_manager,&platform_device_count)) {
-        printf("failed to get the platform device count\n");
-        device_manager_deinit(device_manager);
-        config_manager_deinit(config_manager);
-        return EXIT_FAILURE;
+    if(options.action == CLI_ACTION_LIST) {
+        status = list_tests(runtime, validation_system, options.list_filter) == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
+    } else if(options.action == CLI_ACTION_RUN) {
+        test_def_t test = {0};
+        config_manager_t *config_manager = runtime_manager_get_config_manager(runtime);
+        if(find_configured_test(config_manager, options.test_name, &test) != 0) {
+            fprintf(stderr, "Unknown test '%s'.\n", options.test_name);
+        } else {
+            status = run_test(runtime, validation_system, &test) == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
+        }
+    } else if(options.action == CLI_ACTION_RUN_ALL) {
+        status = run_all_tests(runtime, validation_system) == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
     }
 
-    printf("Totatl Register platform device is %d\n",platform_device_count);
-    //config_manager_platform_print(config_manager);
-
-    function_manager = function_manager_init(config_manager,device_manager);
-    if(function_manager == NULL) {
-        printf("failed init the function manager\n");
-        device_manager_deinit(device_manager);
-        config_manager_deinit(config_manager);
-        return EXIT_FAILURE;
+cleanup:
+    if(validation_system != NULL) {
+        validation_system_deinit(validation_system);
     }
-
-    if(0 != function_manager_get_count(function_manager,&function_count)) {
-        printf("failed to get the platform device count\n");
-        device_manager_deinit(device_manager);
-        config_manager_deinit(config_manager);
-        function_manager_deinit(function_manager);
-        return EXIT_FAILURE;
+    if(runtime != NULL) {
+        runtime_manager_deinit(runtime);
     }
-
-    printf("Totatl function is %d\n",function_count);
-
-    function_def_t function_def = {0};
-
-    if(0 != function_manager_get_function_by_index(function_manager,0,&function_def)){
-        printf("failed to get the function information by index\n");
-        device_manager_deinit(device_manager);
-        config_manager_deinit(config_manager);
-        function_manager_deinit(function_manager);   
-        return EXIT_FAILURE;
-    }
-
-    function_manager_print(function_manager);
-
-    device_manager_deinit(device_manager);
-    config_manager_deinit(config_manager);
-    function_manager_deinit(function_manager);
-    return EXIT_SUCCESS;
+    logger_deinit();
+    return status;
 }

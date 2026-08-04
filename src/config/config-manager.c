@@ -10,7 +10,7 @@
 #include "function.h"
 #include "test.h"
 #include "safe_string.h"
-
+#include "logger.h"
 
 struct config_manager_t{
     
@@ -51,7 +51,7 @@ int32_t config_manager_load(config_manager_t *cfg_man) {
     safe_sprintf(config_file_path, sizeof(config_file_path), "%s/%s",cfg_man->config_path,"device.jsonc");
 
     if(0 != device_parser_load(config_file_path, &cfg_man->device_config)) {
-        printf( "Failed to load device configuration.\n");
+        LOG_ERROR( "Failed to load device configuration.\n");
         return -1;
     }
 
@@ -59,7 +59,7 @@ int32_t config_manager_load(config_manager_t *cfg_man) {
     safe_sprintf(config_file_path, sizeof(config_file_path),"%s/%s",cfg_man->config_path,"function.jsonc");
 
     if(0 != function_parser_load(config_file_path, &cfg_man->function_config)) {
-        printf( "Failed to load function configuration.\n");
+        LOG_ERROR( "Failed to load function configuration.\n");
         return -1;
     }
 
@@ -67,7 +67,7 @@ int32_t config_manager_load(config_manager_t *cfg_man) {
     safe_sprintf(config_file_path, sizeof(config_file_path), "%s/%s",cfg_man->config_path,"test.jsonc");
     
     if(0 != test_parser_load(config_file_path, &cfg_man->test_config)) {
-        printf( "Failed to load test configuration.\n");
+        LOG_ERROR( "Failed to load test configuration.\n");
         return -1;
     }
  
@@ -75,7 +75,7 @@ int32_t config_manager_load(config_manager_t *cfg_man) {
     safe_sprintf(config_file_path, sizeof(config_file_path), "%s/%s",cfg_man->config_path,"platform.json");
     
     if(0 != platform_parser_load(config_file_path, &cfg_man->platform_config)) {
-        printf( "Failed to load platform configuration.\n");
+        LOG_ERROR( "Failed to load platform configuration.\n");
         return -1;
     }
     return 0;
@@ -134,7 +134,7 @@ int32_t config_manager_get_platform_device_by_index(config_manager_t *cfg_man, u
     if((cfg_man == NULL) || (device_binding == NULL))
         return -1;
     
-    if(index > cfg_man->platform_config.binding_count)
+    if(index >= cfg_man->platform_config.binding_count)
         return -1;
 
     memcpy(device_binding, &cfg_man->platform_config.bindings[index], sizeof(device_binding_t));
@@ -152,7 +152,7 @@ int32_t config_manager_get_device_by_index(config_manager_t *cfg_man, uint32_t i
     if((cfg_man == NULL) || (device == NULL))
         return -1;
     
-    if(index > cfg_man->device_config.count)
+    if(index >= cfg_man->device_config.count)
         return -1;
 
     memcpy(device, &cfg_man->device_config.devices[index], sizeof(device_def_t));
@@ -171,9 +171,27 @@ int32_t config_manager_get_function_by_index(config_manager_t *cfg_man, uint32_t
     if((cfg_man == NULL) || (function == NULL))
         return -1;
     
-    if(index > cfg_man->function_config.count)
+    if(index >= cfg_man->function_config.count)
         return -1;
 
     memcpy(function, &cfg_man->function_config.functions[index], sizeof(function_def_t));
+    return 0;
+}
+
+int32_t config_manager_get_test_count(config_manager_t *cfg_man, uint32_t *count) {
+    if((cfg_man == NULL) || (count == NULL))
+        return -1;
+    
+    *count = cfg_man->test_config.count;
+    return 0;
+}
+int32_t config_manager_get_test_by_index(config_manager_t *cfg_man, uint32_t index, test_def_t *test) {
+    if((cfg_man == NULL) || (test == NULL))
+        return -1;
+    
+    if(index >= cfg_man->test_config.count)
+        return -1;
+
+    memcpy(test, &cfg_man->test_config.tests[index], sizeof(test_def_t));
     return 0;
 }

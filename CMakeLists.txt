@@ -10,9 +10,9 @@ project(
 # C Standard
 # ---------------------------------------------------------------------------
 
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
-set(CMAKE_C_EXTENSIONS OFF)
+set(CMAKE_C_EXTENSIONS ON)
 
 # ---------------------------------------------------------------------------
 # Build Type
@@ -36,12 +36,20 @@ else()
     )
 endif()
 
+
+
 # ---------------------------------------------------------------------------
 # Output Directories
 # ---------------------------------------------------------------------------
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+
+# ---------------------------------------------------------------------------
+# Validation Registry Generation
+# ---------------------------------------------------------------------------
+
+include(${PROJECT_SOURCE_DIR}/src/validation/cmake/GenerateValidationRegistry.cmake)
 # ---------------------------------------------------------------------------
 # Include Directories
 # ---------------------------------------------------------------------------
@@ -52,6 +60,10 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/src/config/
     ${PROJECT_SOURCE_DIR}/src/services/
     ${PROJECT_SOURCE_DIR}/src/utils
+    ${PROJECT_SOURCE_DIR}/src/validation
+    ${PROJECT_SOURCE_DIR}/src/validation/generated
+    ${PROJECT_SOURCE_DIR}/src/validation/status_indication_test
+    ${PROJECT_SOURCE_DIR}/src/hal/gpio
     ${PROJECT_SOURCE_DIR}/third-party/cjson-1.7.19
 )
 
@@ -60,9 +72,30 @@ include_directories(
 # ---------------------------------------------------------------------------
 
 file(GLOB_RECURSE APP_SOURCES
-    src/*.c
+    src/cli/*.c
+    src/common/*.c
+    src/config/*.c
+    src/hal/*.c
+    src/services/*.c
+    src/utils/*.c
+    src/validation/*.c
+    src/main.c
     third-party/cjson-1.7.19/*.c
 )
+# ---------------------------------------------------------------------------
+# Generated Sources
+# ---------------------------------------------------------------------------
+
+list(APPEND APP_SOURCES
+
+    ${PROJECT_SOURCE_DIR}/src/validation/generated/validation_registry.c
+)
+#----------------------------------------------------------------------------
+# Plugins
+#----------------------------------------------------------------------------
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/src/plugins/gpio_linux)
+add_subdirectory(${PROJECT_SOURCE_DIR}/src/plugins/i2c_linux)
 
 # ---------------------------------------------------------------------------
 # Executable
@@ -70,4 +103,9 @@ file(GLOB_RECURSE APP_SOURCES
 
 add_executable(validator
     ${APP_SOURCES}
+)
+
+include_directories(
+    ${CMAKE_SOURCE_DIR}/src/common
+    ${CMAKE_SOURCE_DIR}/src/cli
 )

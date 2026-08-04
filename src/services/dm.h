@@ -172,7 +172,24 @@ int32_t device_manager_get_device_by_index(
     device_manager_t* dm,
     uint32_t index,
     Device_t *device);
-
+/**
+ * @brief Retrieve a logical device information by index.
+ *
+ * Returns the logical device information associated with the specified
+ * index from the device manager configuration.
+ *
+ * @param[in] dm Pointer to the device Manager instance.
+ * @param[in] name Device name.
+ * @param[out] device Pointer to a structure that receives
+ *                    the device information.
+ *
+ * @retval 0 Success.
+ * @retval -1 Failure.
+ */
+int32_t device_manager_get_device_by_name(
+    device_manager_t* dm,
+    const char* name,
+    Device_t *device);
 /**
  * @brief Retrieve the current state of a device.
  *
