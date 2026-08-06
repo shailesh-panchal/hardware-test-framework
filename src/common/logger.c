@@ -3,7 +3,7 @@
 #include <time.h>
 #include <pthread.h>
 #include "logger.h"
-
+#include "circular-fifo.h"
 
 #define LOGGER_MAX_QUEUE_SIZE     128
 #define LOGGER_MAX_MESSAGE_SIZE   1024
@@ -15,16 +15,14 @@ typedef struct{
 } LoggerMessage_t;
 
 
-typedef struct {
-    uint32_t head;
-    uint32_t tail;
-    uint32_t count;
-} CircularFifo_t;
+circular_fifo_t fifo;
+
+LoggerMessage_t queue[LOGGER_MAX_QUEUE_SIZE];
 
 typedef struct {
     LogLevel_e logLevel;
 
-    CircularFifo_t fifo;
+    circular_fifo_t fifo;
 
     LoggerMessage_t queue[LOGGER_MAX_QUEUE_SIZE];
 
@@ -49,7 +47,7 @@ static const char* get_level_string(LogLevel_e level) {
         default:              return "UNKNOWN";
     }
 }
-
+//gcc -Icommon ../test/test_logger.c common/logger.c -o test_logger ./test_logger --log-level all
 static void logger_get_timestamp(char *buffer, size_t size) {
     time_t rawtime;
     struct tm timeinfo;
@@ -70,15 +68,20 @@ static int enqueue(const char *msg) {
     
     pthread_mutex_lock(&loggerContext.queueLock);
     
-    if (loggerContext.fifo.count >= LOGGER_MAX_QUEUE_SIZE) {
+    LoggerMessage_t message;
+
+    snprintf(message.message,
+            LOGGER_MAX_MESSAGE_SIZE,
+            "%s",
+            msg);
+
+    if (circular_fifo_push(
+            &loggerContext.fifo,
+            &message) != CIRCULAR_FIFO_SUCCESS)
+    {
         pthread_mutex_unlock(&loggerContext.queueLock);
         return -1;
     }
-
-    snprintf(loggerContext.queue[loggerContext.fifo.tail].message, LOGGER_MAX_MESSAGE_SIZE, "%s",msg);
-
-    loggerContext.fifo.tail = (loggerContext.fifo.tail + 1) % LOGGER_MAX_QUEUE_SIZE;
-    loggerContext.fifo.count++;
     
     pthread_cond_signal(&loggerContext.queueCond);
     pthread_mutex_unlock(&loggerContext.queueLock);
@@ -90,18 +93,22 @@ static int dequeue(LoggerMessage_t *msg) {
     
     pthread_mutex_lock(&loggerContext.queueLock);
     
-    while (loggerContext.fifo.count == 0 && loggerContext.running) {
+    while (circular_fifo_is_empty(&loggerContext.fifo) && loggerContext.running) {
         pthread_cond_wait(&loggerContext.queueCond, &loggerContext.queueLock);
     }
 
-    if(loggerContext.fifo.count == 0 && !loggerContext.running) {
+    if(circular_fifo_is_empty(&loggerContext.fifo) && !loggerContext.running) {
         pthread_mutex_unlock(&loggerContext.queueLock);
         return -1;
     }
 
-    *msg = loggerContext.queue[loggerContext.fifo.head];
-    loggerContext.fifo.head = (loggerContext.fifo.head + 1) % LOGGER_MAX_QUEUE_SIZE;
-    loggerContext.fifo.count--;
+    if (circular_fifo_pop(
+            &loggerContext.fifo,
+            msg) != CIRCULAR_FIFO_SUCCESS)
+    {
+        pthread_mutex_unlock(&loggerContext.queueLock);
+        return -1;
+    }
     
     pthread_mutex_unlock(&loggerContext.queueLock);
     return 0;
@@ -109,7 +116,7 @@ static int dequeue(LoggerMessage_t *msg) {
 
 static void* logger_worker(void* arg) {
     (void)arg;
-    while (loggerContext.running || loggerContext.fifo.count > 0) {
+    while (loggerContext.running || !circular_fifo_is_empty(&loggerContext.fifo) ) {
         LoggerMessage_t msg;
         if(dequeue(&msg) == 0) {
             printf("%s\n", msg.message);
@@ -137,9 +144,11 @@ int32_t logger_init(void) {
     }
         
     loggerContext.logLevel = LOG_LEVEL_ERROR;
-    loggerContext.fifo.head = 0;
-    loggerContext.fifo.tail = 0;
-    loggerContext.fifo.count = 0;
+    circular_fifo_init(
+        &loggerContext.fifo,
+        loggerContext.queue,
+        LOGGER_MAX_QUEUE_SIZE,
+        sizeof(LoggerMessage_t));
     return 0;
 }
 
