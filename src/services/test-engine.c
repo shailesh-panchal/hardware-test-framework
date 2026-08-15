@@ -15,6 +15,7 @@
 #include "safe_string.h"
 #include "util.h"
 #include "function.h"
+#include "circular-fifo.h"
 
 struct test_engine_t
 {
@@ -60,21 +61,24 @@ struct test_engine_t
      * Scheduler inserts runnable tests.
      * Worker threads consume them.
      */
-    test_instance_t *execution_queue[TEST_ENGINE_QUEUE_SIZE];
+
+    circular_fifo_t execution_queue;
+
+    test_instance_t *execution_queue_storage[TEST_ENGINE_QUEUE_SIZE];
     /**
      * Queue item count.
      */
-    uint32_t queue_count;
+    // uint32_t queue_count;
 
     /**
      * Queue read index.
      */
-    uint32_t queue_read_index;
+    // uint32_t queue_read_index;
 
     /**
      * Queue write index.
      */
-    uint32_t queue_write_index;
+    // uint32_t queue_write_index;
 
     /**
      * Queue synchronization lock.
@@ -173,19 +177,20 @@ static int32_t test_engine_queue_push(test_engine_t *test_engine, test_instance_
 
     pthread_mutex_lock(&test_engine->queue_lock);
 
-    if(test_engine->queue_count >= TEST_ENGINE_QUEUE_SIZE) {
-
+    if (circular_fifo_push(&test_engine->execution_queue,
+                           &instance) != CIRCULAR_FIFO_SUCCESS)
+    {
         pthread_mutex_unlock(&test_engine->queue_lock);
         return -1;
     }
 
-    test_engine->execution_queue[test_engine->queue_write_index] = instance;
+    // test_engine->execution_queue[test_engine->queue_write_index] = instance;
 
-    test_engine->queue_write_index++;
-    if(test_engine->queue_write_index >= TEST_ENGINE_QUEUE_SIZE){
-        test_engine->queue_write_index = 0;
-    }
-    test_engine->queue_count++;
+    // test_engine->queue_write_index++;
+    // if(test_engine->queue_write_index >= TEST_ENGINE_QUEUE_SIZE){
+    //     test_engine->queue_write_index = 0;
+    // }
+    // test_engine->queue_count++;
 
     pthread_cond_signal(&test_engine->queue_condition);
     pthread_mutex_unlock(&test_engine->queue_lock);
@@ -193,34 +198,37 @@ static int32_t test_engine_queue_push(test_engine_t *test_engine, test_instance_
     return 0;
 }
 
-static test_instance_t* test_engine_queue_pop( test_engine_t *test_engine) {
-
+static test_instance_t *test_engine_queue_pop(test_engine_t *test_engine)
+{
     test_instance_t *instance = NULL;
 
-    if(test_engine == NULL) {
+    if (test_engine == NULL)
+    {
         return NULL;
     }
 
     pthread_mutex_lock(&test_engine->queue_lock);
 
-    while(test_engine->queue_count == 0 && test_engine->running) {
-        pthread_cond_wait(&test_engine->queue_condition, &test_engine->queue_lock);
+    while (circular_fifo_is_empty(&test_engine->execution_queue) &&
+           test_engine->running)
+    {
+        pthread_cond_wait(&test_engine->queue_condition,
+                          &test_engine->queue_lock);
     }
 
-    if(!test_engine->running) {
+    if (!test_engine->running)
+    {
         pthread_mutex_unlock(&test_engine->queue_lock);
         return NULL;
     }
 
-    instance = test_engine->execution_queue[ test_engine->queue_read_index];
-
-    test_engine->queue_read_index++;
-
-    if(test_engine->queue_read_index >= TEST_ENGINE_QUEUE_SIZE){
-        test_engine->queue_read_index = 0;
+    if (circular_fifo_pop(&test_engine->execution_queue,
+                          &instance) != CIRCULAR_FIFO_SUCCESS)
+    {
+        pthread_mutex_unlock(&test_engine->queue_lock);
+        return NULL;
     }
 
-    test_engine->queue_count--;
     pthread_mutex_unlock(&test_engine->queue_lock);
 
     return instance;
@@ -316,9 +324,11 @@ test_engine_t* test_engine_init(test_manager_t *test_manager,function_manager_t 
     /*
      * Initialize queue state
      */
-    test_engine->queue_count = 0;
-    test_engine->queue_read_index = 0;
-    test_engine->queue_write_index = 0;
+    circular_fifo_init(
+        &test_engine->execution_queue,
+        test_engine->execution_queue_storage,
+        TEST_ENGINE_QUEUE_SIZE,
+        sizeof(test_instance_t *));
 
     pthread_mutex_init(&test_engine->queue_lock, NULL);
     pthread_cond_init(&test_engine->queue_condition, NULL);
