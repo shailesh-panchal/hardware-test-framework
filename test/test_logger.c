@@ -58,6 +58,7 @@ int main(int argc, char *argv[])
     for(int i = 0; i < 10; i++)
     {
         LOG_INFO("Message %d", i);
+        usleep(100000);
     }
 
     logger_deinit();

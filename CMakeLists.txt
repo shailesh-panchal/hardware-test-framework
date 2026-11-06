@@ -57,6 +57,9 @@ include(${PROJECT_SOURCE_DIR}/src/validation/cmake/GenerateValidationRegistry.cm
 include_directories(
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/src
+    ${PROJECT_SOURCE_DIR}/src/common
+    ${PROJECT_SOURCE_DIR}/src/common/circular-fifo/include
+    ${PROJECT_SOURCE_DIR}/src/cli
     ${PROJECT_SOURCE_DIR}/src/config/
     ${PROJECT_SOURCE_DIR}/src/services/
     ${PROJECT_SOURCE_DIR}/src/utils
@@ -74,6 +77,7 @@ include_directories(
 file(GLOB_RECURSE APP_SOURCES
     src/cli/*.c
     src/common/*.c
+    src/common/circular-fifo/src/*.c
     src/config/*.c
     src/hal/*.c
     src/services/*.c
@@ -94,7 +98,7 @@ list(APPEND APP_SOURCES
 # Plugins
 #----------------------------------------------------------------------------
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/src/plugins/gpio_linux)
+# add_subdirectory(${PROJECT_SOURCE_DIR}/src/plugins/gpio_linux)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/plugins/i2c_linux)
 
 # ---------------------------------------------------------------------------
@@ -105,7 +109,3 @@ add_executable(validator
     ${APP_SOURCES}
 )
 
-include_directories(
-    ${CMAKE_SOURCE_DIR}/src/common
-    ${CMAKE_SOURCE_DIR}/src/cli
-)
